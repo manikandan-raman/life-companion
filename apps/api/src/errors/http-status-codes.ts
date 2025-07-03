@@ -1,0 +1,11 @@
+export const OK = 200 as const;
+export const CREATED = 201 as const;
+export const NO_CONTENT = 204 as const;
+export const BAD_REQUEST = 400 as const;
+export const UNAUTHORIZED = 401 as const;
+export const FORBIDDEN = 403 as const;
+export const NOT_FOUND = 404 as const;
+export const METHOD_NOT_ALLOWED = 405 as const;
+export const CONFLICT = 409 as const;
+export const UNPROCESSABLE_ENTITY = 422 as const;
+export const INTERNAL_SERVER_ERROR = 500 as const;

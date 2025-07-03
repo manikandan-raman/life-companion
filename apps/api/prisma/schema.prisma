@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  phone     String   @unique
+  email     String?  @unique
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  expenseCategories ExpenseCategory[]
+  expenseTrackers   ExpenseTracker[]
+  todos             Todo[]
+  dailyJournals     DailyJournal[]
+
+  @@map("user")
+}
+
+model DailyJournal {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  title     String
+  content   String
+  date      DateTime @db.Date
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("daily_journal")
+}
+
+model ExpenseCategory {
+  id       Int     @id
+  userId   String  @map("user_id")
+  name     String
+  isActive Boolean @default(true) @map("is_active")
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expenseTrackers ExpenseTracker[]
+
+  @@map("expense_category")
+}
+
+model ExpenseTracker {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  categoryId Int      @map("category_id")
+  amount     Decimal  @db.Decimal(65, 30)
+  date       DateTime
+  notes      String?
+  tags       String[] @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category ExpenseCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@map("expense_tracker")
+}
+
+model TodoStatus {
+  id        Int      @id
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  todos Todo[]
+
+  @@map("todo_status")
+}
+
+model Todo {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  task      String
+  notes     String?
+  remindAt  DateTime @map("remind_at")
+  statusId  Int      @map("status_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status TodoStatus @relation(fields: [statusId], references: [id], onDelete: Cascade)
+
+  @@map("todo")
+}
