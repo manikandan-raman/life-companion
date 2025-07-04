@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "mobile": "pnpm --filter mobile start",
-    "api": "pnpm --filter api dev",
+    "mobile:dev": "pnpm --filter @life-companion/mobile-app start",
+    "api:dev": "pnpm --filter @life-companion/api dev",
     "build:mobile": "pnpm --filter mobile build",
     "build:api": "pnpm --filter api build"
   },
