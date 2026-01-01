@@ -2,16 +2,16 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
-import type { Account, Category } from "@/types";
+import type { Account, Category, AccountFromView } from "@/types";
 import type { AccountFormData } from "@/schemas/account";
 import type { CategoryFormData } from "@/schemas/category";
 
-// Accounts
+// Accounts - returns accounts with calculated currentBalance from the view
 export function useAccounts() {
   return useQuery({
     queryKey: ["accounts"],
     queryFn: async () => {
-      const response = await api.get<{ data: Account[] }>("/api/accounts");
+      const response = await api.get<{ data: AccountFromView[] }>("/api/accounts");
       return response.data;
     },
   });

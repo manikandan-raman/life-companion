@@ -44,8 +44,25 @@ export interface TransactionWithRelations extends Transaction {
   tags: Tag[];
 }
 
+// Account with calculated balance from the database view
 export interface AccountWithBalance extends Account {
-  currentBalance: number;
+  currentBalance: string; // Decimal from DB view
+}
+
+// Helper type for the API response (from account_with_balances view)
+export interface AccountFromView {
+  id: string;
+  userId: string;
+  name: string;
+  type: AccountType;
+  balance: string;
+  color: string | null;
+  icon: string | null;
+  isDefault: boolean | null;
+  isArchived: boolean | null;
+  createdAt: Date;
+  updatedAt: Date;
+  currentBalance: string; // Calculated from transactions
 }
 
 // API Response types

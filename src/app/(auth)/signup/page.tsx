@@ -98,7 +98,9 @@ export default function SignupPage() {
                 autoComplete="new-password"
                 disabled={isSigningUp}
                 {...register("password")}
-                className={errors.password ? "border-destructive pr-10" : "pr-10"}
+                className={
+                  errors.password ? "border-destructive pr-10" : "pr-10"
+                }
               />
               <button
                 type="button"
@@ -114,7 +116,9 @@ export default function SignupPage() {
               </button>
             </div>
             {errors.password && (
-              <p className="text-sm text-destructive">{errors.password.message}</p>
+              <p className="text-sm text-destructive">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
@@ -128,7 +132,9 @@ export default function SignupPage() {
                 autoComplete="new-password"
                 disabled={isSigningUp}
                 {...register("confirmPassword")}
-                className={errors.confirmPassword ? "border-destructive pr-10" : "pr-10"}
+                className={
+                  errors.confirmPassword ? "border-destructive pr-10" : "pr-10"
+                }
               />
               <button
                 type="button"
@@ -150,11 +156,7 @@ export default function SignupPage() {
             )}
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSigningUp}
-          >
+          <Button type="submit" className="w-full" disabled={isSigningUp}>
             {isSigningUp ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -167,7 +169,7 @@ export default function SignupPage() {
         </CardContent>
 
         <CardFooter className="flex justify-center pb-6">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground mt-4">
             Already have an account?{" "}
             <Link
               href="/login"
@@ -181,4 +183,3 @@ export default function SignupPage() {
     </Card>
   );
 }
-

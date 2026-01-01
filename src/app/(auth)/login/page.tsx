@@ -75,7 +75,9 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 disabled={isLoggingIn}
                 {...register("password")}
-                className={errors.password ? "border-destructive pr-10" : "pr-10"}
+                className={
+                  errors.password ? "border-destructive pr-10" : "pr-10"
+                }
               />
               <button
                 type="button"
@@ -91,15 +93,13 @@ export default function LoginPage() {
               </button>
             </div>
             {errors.password && (
-              <p className="text-sm text-destructive">{errors.password.message}</p>
+              <p className="text-sm text-destructive">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoggingIn}
-          >
+          <Button type="submit" className="w-full" disabled={isLoggingIn}>
             {isLoggingIn ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -112,7 +112,7 @@ export default function LoginPage() {
         </CardContent>
 
         <CardFooter className="flex justify-center pb-6">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground mt-4">
             Don&apos;t have an account?{" "}
             <Link
               href="/signup"
@@ -126,4 +126,3 @@ export default function LoginPage() {
     </Card>
   );
 }
-

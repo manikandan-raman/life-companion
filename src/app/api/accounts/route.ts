@@ -1,21 +1,34 @@
 import { NextResponse } from "next/server";
 import { db, accounts } from "@/db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql, desc, asc } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
 import { accountSchema } from "@/schemas/account";
 
-// GET - List all accounts for the user
+// GET - List all accounts for the user with calculated balance from view
 export async function GET() {
   try {
     const { userId } = await requireAuth();
 
-    const userAccounts = await db.query.accounts.findMany({
-      where: and(
-        eq(accounts.userId, userId),
-        eq(accounts.isArchived, false)
-      ),
-      orderBy: (accounts, { desc }) => [desc(accounts.isDefault), accounts.name],
-    });
+    // Query from the account_with_balances view
+    const userAccounts = await db.execute(sql`
+      SELECT 
+        id,
+        user_id as "userId",
+        name,
+        type,
+        balance,
+        color,
+        icon,
+        is_default as "isDefault",
+        is_archived as "isArchived",
+        created_at as "createdAt",
+        updated_at as "updatedAt",
+        current_balance as "currentBalance"
+      FROM account_with_balances
+      WHERE user_id = ${userId}
+        AND is_archived = false
+      ORDER BY is_default DESC, name ASC
+    `);
 
     return NextResponse.json({ data: userAccounts });
   } catch (error) {

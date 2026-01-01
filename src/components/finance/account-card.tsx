@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { Account, AccountType } from "@/types";
+import type { AccountFromView, AccountType } from "@/types";
 
 const typeLabels: Record<AccountType, string> = {
   cash: "Cash",
@@ -20,7 +20,7 @@ const typeLabels: Record<AccountType, string> = {
 };
 
 interface AccountCardProps {
-  account: Account;
+  account: AccountFromView;
   onEdit?: () => void;
   onDelete?: () => void;
   className?: string;
@@ -82,7 +82,7 @@ export function AccountCard({
           </div>
           <div className="flex items-center gap-2">
             <p className="font-semibold text-lg">
-              {formatAmount(account.balance)}
+              {formatAmount(account.currentBalance)}
             </p>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

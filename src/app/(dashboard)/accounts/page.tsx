@@ -103,9 +103,9 @@ export default function AccountsPage() {
     }
   };
 
-  // Calculate total balance
+  // Calculate total balance from currentBalance (computed by DB view)
   const totalBalance = accounts?.reduce(
-    (sum, acc) => sum + parseFloat(String(acc.balance)),
+    (sum, acc) => sum + parseFloat(String(acc.currentBalance)),
     0
   ) || 0;
 
