@@ -8,6 +8,7 @@ const withSerwist = withSerwistInit({
 });
 
 const nextConfig: NextConfig = {
+  outputFileTracingRoot: __dirname,
   reactStrictMode: true,
   // Empty turbopack config to silence warnings in dev mode
   turbopack: {},

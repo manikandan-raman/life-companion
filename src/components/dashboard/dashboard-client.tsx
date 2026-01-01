@@ -218,7 +218,7 @@ export function DashboardClient() {
                           userId: "",
                           name: transaction.category.name,
                           type: transaction.category.type as CategoryType,
-                          color: transaction.category.color,
+                          color: transaction.category.color || "#6b7280",
                           icon: transaction.category.icon,
                           sortOrder: 0,
                           isSystem: false,
