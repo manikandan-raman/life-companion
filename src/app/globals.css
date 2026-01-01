@@ -1,26 +1,409 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  
+  /* Custom category colors */
+  --color-income: var(--income);
+  --color-income-foreground: var(--income-foreground);
+  --color-needs: var(--needs);
+  --color-needs-foreground: var(--needs-foreground);
+  --color-wants: var(--wants);
+  --color-wants-foreground: var(--wants-foreground);
+  --color-savings: var(--savings);
+  --color-savings-foreground: var(--savings-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Dark mode is the default - Apple/Linear inspired aesthetic */
+:root {
+  --radius: 0.75rem;
+  
+  /* Base colors - Dark theme (default) */
+  --background: oklch(0.075 0 0);
+  --foreground: oklch(0.95 0 0);
+  
+  /* Card surfaces - slightly elevated from background */
+  --card: oklch(0.115 0 0);
+  --card-foreground: oklch(0.95 0 0);
+  
+  /* Popover/dropdown */
+  --popover: oklch(0.13 0 0);
+  --popover-foreground: oklch(0.95 0 0);
+  
+  /* Primary accent - Blue (Linear inspired) */
+  --primary: oklch(0.65 0.2 250);
+  --primary-foreground: oklch(0.98 0 0);
+  
+  /* Secondary - Muted gray */
+  --secondary: oklch(0.2 0 0);
+  --secondary-foreground: oklch(0.9 0 0);
+  
+  /* Muted text and backgrounds */
+  --muted: oklch(0.18 0 0);
+  --muted-foreground: oklch(0.6 0 0);
+  
+  /* Accent for hover states */
+  --accent: oklch(0.2 0.015 250);
+  --accent-foreground: oklch(0.95 0 0);
+  
+  /* Destructive actions */
+  --destructive: oklch(0.65 0.25 25);
+  
+  /* Borders and inputs */
+  --border: oklch(0.25 0 0);
+  --input: oklch(0.2 0 0);
+  --ring: oklch(0.65 0.2 250);
+  
+  /* Category colors - Finance specific */
+  /* Income - Emerald */
+  --income: oklch(0.7 0.18 155);
+  --income-foreground: oklch(0.15 0.03 155);
+  
+  /* Needs - Blue */
+  --needs: oklch(0.65 0.17 230);
+  --needs-foreground: oklch(0.15 0.03 230);
+  
+  /* Wants - Amber/Orange */
+  --wants: oklch(0.75 0.18 65);
+  --wants-foreground: oklch(0.2 0.03 65);
+  
+  /* Savings - Violet/Purple */
+  --savings: oklch(0.65 0.2 290);
+  --savings-foreground: oklch(0.15 0.03 290);
+  
+  /* Success/Warning states */
+  --success: oklch(0.7 0.18 145);
+  --success-foreground: oklch(0.15 0.03 145);
+  --warning: oklch(0.75 0.18 55);
+  --warning-foreground: oklch(0.2 0.03 55);
+  
+  /* Chart colors */
+  --chart-1: oklch(0.65 0.2 250);
+  --chart-2: oklch(0.7 0.18 155);
+  --chart-3: oklch(0.75 0.18 65);
+  --chart-4: oklch(0.65 0.2 290);
+  --chart-5: oklch(0.65 0.25 25);
+  
+  /* Sidebar */
+  --sidebar: oklch(0.09 0 0);
+  --sidebar-foreground: oklch(0.95 0 0);
+  --sidebar-primary: oklch(0.65 0.2 250);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.15 0 0);
+  --sidebar-accent-foreground: oklch(0.95 0 0);
+  --sidebar-border: oklch(0.2 0 0);
+  --sidebar-ring: oklch(0.65 0.2 250);
+}
+
+/* Light mode variant */
+.light {
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.12 0 0);
+  
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.12 0 0);
+  
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.12 0 0);
+  
+  --primary: oklch(0.55 0.22 250);
+  --primary-foreground: oklch(0.98 0 0);
+  
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.15 0 0);
+  
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.5 0 0);
+  
+  --accent: oklch(0.96 0.01 250);
+  --accent-foreground: oklch(0.15 0 0);
+  
+  --destructive: oklch(0.55 0.25 25);
+  
+  --border: oklch(0.92 0 0);
+  --input: oklch(0.92 0 0);
+  --ring: oklch(0.55 0.22 250);
+  
+  /* Category colors - slightly adjusted for light mode */
+  --income: oklch(0.6 0.2 155);
+  --income-foreground: oklch(0.98 0 0);
+  
+  --needs: oklch(0.55 0.2 230);
+  --needs-foreground: oklch(0.98 0 0);
+  
+  --wants: oklch(0.7 0.2 65);
+  --wants-foreground: oklch(0.15 0.03 65);
+  
+  --savings: oklch(0.55 0.22 290);
+  --savings-foreground: oklch(0.98 0 0);
+  
+  --success: oklch(0.6 0.2 145);
+  --success-foreground: oklch(0.98 0 0);
+  --warning: oklch(0.7 0.2 55);
+  --warning-foreground: oklch(0.15 0.03 55);
+  
+  --chart-1: oklch(0.55 0.22 250);
+  --chart-2: oklch(0.6 0.2 155);
+  --chart-3: oklch(0.7 0.2 65);
+  --chart-4: oklch(0.55 0.22 290);
+  --chart-5: oklch(0.55 0.25 25);
+  
+  --sidebar: oklch(0.98 0 0);
+  --sidebar-foreground: oklch(0.12 0 0);
+  --sidebar-primary: oklch(0.55 0.22 250);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.96 0 0);
+  --sidebar-accent-foreground: oklch(0.15 0 0);
+  --sidebar-border: oklch(0.92 0 0);
+  --sidebar-ring: oklch(0.55 0.22 250);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Better touch targets for mobile */
+  button, a, input, select, textarea {
+    touch-action: manipulation;
+  }
+  
+  /* Hide scrollbar but keep functionality */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Safe area padding for mobile devices */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Animation utilities */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+/* Tremor chart dark mode fixes */
+:root {
+  /* Override Tremor's default text color in dark mode */
+  --tremor-content-DEFAULT: oklch(0.95 0 0);
+  --tremor-content-emphasis: oklch(0.95 0 0);
+  --tremor-content-subtle: oklch(0.6 0 0);
+  --tremor-background-DEFAULT: oklch(0.075 0 0);
+  --tremor-background-muted: oklch(0.115 0 0);
+  --tremor-background-subtle: oklch(0.18 0 0);
+  --tremor-border-DEFAULT: oklch(0.25 0 0);
+  
+  /* Tremor brand colors for dark mode */
+  --tremor-brand: #3b82f6;
+  --tremor-brand-muted: #1e3a5f;
+  --tremor-brand-subtle: #0f172a;
+  --tremor-brand-inverted: #ffffff;
+}
+
+.light {
+  --tremor-content-DEFAULT: oklch(0.12 0 0);
+  --tremor-content-emphasis: oklch(0.12 0 0);
+  --tremor-content-subtle: oklch(0.5 0 0);
+  --tremor-background-DEFAULT: oklch(0.99 0 0);
+  --tremor-background-muted: oklch(1 0 0);
+  --tremor-background-subtle: oklch(0.96 0 0);
+  --tremor-border-DEFAULT: oklch(0.92 0 0);
+  
+  /* Tremor brand colors for light mode */
+  --tremor-brand: #3b82f6;
+  --tremor-brand-muted: #bfdbfe;
+  --tremor-brand-subtle: #eff6ff;
+  --tremor-brand-inverted: #ffffff;
+}
+
+/* Force Tremor chart colors to be visible */
+[data-tremor-id] path,
+.recharts-pie-sector path {
+  stroke-opacity: 1 !important;
+  fill-opacity: 1 !important;
+}
+
+/* Tremor DonutChart specific fixes */
+.tremor-DonutChart svg path[fill] {
+  fill-opacity: 1 !important;
+}
+
+/* Tremor color classes - ensure visibility in dark mode */
+.fill-blue-500, .fill-blue-400 { fill: #3b82f6 !important; }
+.fill-amber-500, .fill-amber-400 { fill: #f59e0b !important; }
+.fill-violet-500, .fill-violet-400 { fill: #8b5cf6 !important; }
+.fill-emerald-500, .fill-emerald-400 { fill: #10b981 !important; }
+.fill-pink-500, .fill-pink-400 { fill: #ec4899 !important; }
+.fill-cyan-500, .fill-cyan-400 { fill: #06b6d4 !important; }
+.fill-yellow-500, .fill-yellow-400 { fill: #eab308 !important; }
+.fill-indigo-500, .fill-indigo-400 { fill: #6366f1 !important; }
+.fill-rose-500, .fill-rose-400 { fill: #f43f5e !important; }
+.fill-teal-500, .fill-teal-400 { fill: #14b8a6 !important; }
+.fill-gray-500, .fill-gray-400 { fill: #6b7280 !important; }
+
+/* Tremor chart tooltip styling */
+.recharts-tooltip-wrapper {
+  z-index: 50;
+}
+
+.recharts-default-tooltip {
+  background-color: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem 1rem !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+}
+
+.recharts-tooltip-label {
+  color: var(--foreground) !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.recharts-tooltip-item {
+  color: var(--foreground) !important;
+  padding: 0.125rem 0 !important;
+}
+
+.recharts-tooltip-item-name {
+  color: var(--muted-foreground) !important;
+  margin-right: 0.5rem !important;
+}
+
+.recharts-tooltip-item-value {
+  color: var(--foreground) !important;
+  font-weight: 500 !important;
+}
+
+.recharts-tooltip-item-separator {
+  margin: 0 0.25rem !important;
+}
+
+/* Tremor specific tooltip overrides */
+[class*="tremor"] .recharts-tooltip-wrapper,
+.tremor-DonutChart .recharts-tooltip-wrapper {
+  pointer-events: none;
+}
+
+[class*="tremor"] .recharts-default-tooltip,
+.tremor-DonutChart .recharts-default-tooltip {
+  background: var(--popover) !important;
+  border-color: var(--border) !important;
+  color: var(--popover-foreground) !important;
 }

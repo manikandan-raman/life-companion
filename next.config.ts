@@ -1,7 +1,21 @@
+import withSerwistInit from "@serwist/next";
 import type { NextConfig } from "next";
 
+const withSerwist = withSerwistInit({
+  swSrc: "src/app/sw.ts",
+  swDest: "public/sw.js",
+  disable: process.env.NODE_ENV === "development",
+});
+
 const nextConfig: NextConfig = {
-  /* config options here */
+  reactStrictMode: true,
+  // Empty turbopack config to silence warnings in dev mode
+  turbopack: {},
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "2mb",
+    },
+  },
 };
 
-export default nextConfig;
+export default withSerwist(nextConfig);

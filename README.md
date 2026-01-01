@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Life Manager - Personal Finance PWA
+
+A mobile-first Progressive Web App for personal life management, starting with the Finance module. Built with Next.js 15, TypeScript, and a modern dark-first UI.
+
+## Features
+
+### Finance Module
+- **Dashboard**: Monthly overview with income, expenses, and balance
+- **Budget Tracking**: 50/30/20 rule (Needs/Wants/Savings) with progress visualization
+- **Transactions**: Full CRUD operations with category and account support
+- **Accounts**: Track multiple accounts (Bank, Cash, Credit Cards)
+- **Categories**: Customizable categories with colors and icons
+- **Tags**: Flexible tagging system for transactions
+
+### Technical Features
+- **PWA Support**: Installable on iOS and Android
+- **Dark Mode First**: Apple/Linear inspired aesthetic
+- **Mobile-First**: Bottom navigation, large touch targets
+- **Responsive**: Adapts to desktop with side rail navigation
+- **JWT Auth**: Secure HTTP-only cookie authentication
+
+## Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS + Shadcn/UI
+- **State**: TanStack Query (React Query)
+- **Forms**: React Hook Form + Zod
+- **Database**: Drizzle ORM + PostgreSQL
+- **Auth**: Custom JWT with HTTP-only cookies
+- **PWA**: Serwist (Service Workers)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
+- Node.js 22.12.0+ (use `nvm use` to switch)
+- PostgreSQL database
+- Yarn
+
+### Installation
+
+1. Clone the repository:
+\`\`\`bash
+git clone <repository-url>
+cd mk_digi
+\`\`\`
+
+2. Install dependencies:
+\`\`\`bash
+yarn
+\`\`\`
+
+3. Set up environment variables:
+\`\`\`bash
+cp .env.example .env.local
+\`\`\`
+
+Edit `.env.local` with your database and JWT settings:
+\`\`\`
+DATABASE_URL="postgresql://user:password@localhost:5432/life_manager"
+JWT_SECRET="your-super-secret-key-min-32-characters-long"
+JWT_EXPIRES_IN="7d"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+\`\`\`
+
+4. Set up the database:
+\`\`\`bash
+# Generate migrations
+yarn db:generate
+
+# Push schema to database
+yarn db:push
+\`\`\`
+
+5. Run the development server:
+\`\`\`bash
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+\`\`\`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+6. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database Commands
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+\`\`\`bash
+# Generate new migration files
+yarn db:generate
 
-## Learn More
+# Apply migrations to database
+yarn db:migrate
 
-To learn more about Next.js, take a look at the following resources:
+# Push schema directly (dev only)
+yarn db:push
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Open Drizzle Studio (database viewer)
+yarn db:studio
+\`\`\`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+\`\`\`
+src/
+├── app/
+│   ├── (auth)/           # Auth pages (login, signup)
+│   ├── (dashboard)/      # Protected dashboard pages
+│   ├── api/              # API routes
+│   └── offline/          # PWA offline fallback
+├── components/
+│   ├── ui/               # Shadcn/UI components
+│   ├── layout/           # Navigation components
+│   ├── finance/          # Finance-specific components
+│   └── common/           # Shared components
+├── db/
+│   ├── schema.ts         # Drizzle schema
+│   └── index.ts          # Database client
+├── hooks/                # React Query hooks
+├── lib/                  # Utilities (auth, api-client)
+├── schemas/              # Zod validation schemas
+└── types/                # TypeScript types
+\`\`\`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## PWA Installation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The app can be installed as a PWA:
+
+1. **iOS**: Open in Safari → Share → "Add to Home Screen"
+2. **Android**: Chrome will show an "Install" prompt
+3. **Desktop**: Click the install icon in the address bar
+
+## Future Modules (Planned)
+
+- **Habit Tracker**: Daily habit tracking with streaks
+- **Journal**: Personal journaling with mood tracking
+
+## License
+
+MIT

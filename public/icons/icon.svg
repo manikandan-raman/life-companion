@@ -1,0 +1,11 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="96" fill="#0a0a0a"/>
+  <rect x="32" y="32" width="448" height="448" rx="80" fill="#141414"/>
+  <!-- Dollar/Finance icon stylized -->
+  <circle cx="256" cy="256" r="140" stroke="#3b82f6" stroke-width="24" fill="none"/>
+  <path d="M256 156V196M256 316V356" stroke="#3b82f6" stroke-width="24" stroke-linecap="round"/>
+  <path d="M296 196H236C218.327 196 204 210.327 204 228V228C204 245.673 218.327 260 236 260H276C293.673 260 308 274.327 308 292V292C308 309.673 293.673 324 276 324H216" stroke="#3b82f6" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Accent dot -->
+  <circle cx="400" cy="112" r="40" fill="#10b981"/>
+</svg>
+
