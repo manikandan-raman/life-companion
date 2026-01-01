@@ -22,6 +22,9 @@ import {
 } from "@/hooks/use-bills";
 import { cn } from "@/lib/utils";
 
+// Default color for bills
+const DEFAULT_BILL_COLOR = "#6366f1";
+
 export function BillsWidget() {
   const [payingBill, setPayingBill] = useState<RecurringBillWithRelations | null>(null);
 
@@ -153,7 +156,7 @@ export function BillsWidget() {
                     <div
                       className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                       style={{
-                        backgroundColor: `${bill.category?.color || "#6366f1"}20`,
+                        backgroundColor: `${DEFAULT_BILL_COLOR}20`,
                       }}
                     >
                       {bill.status === "overdue" ? (
@@ -169,7 +172,7 @@ export function BillsWidget() {
                       ) : (
                         <Receipt
                           className="h-4 w-4"
-                          style={{ color: bill.category?.color || "#6366f1" }}
+                          style={{ color: DEFAULT_BILL_COLOR }}
                         />
                       )}
                     </div>
@@ -223,4 +226,3 @@ export function BillsWidget() {
     </>
   );
 }
-

@@ -12,11 +12,10 @@ import { SpendingCharts } from "@/components/finance/spending-charts";
 import { MonthPicker } from "@/components/finance/month-picker";
 import { BillsWidget } from "@/components/dashboard/bills-widget";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSummary } from "@/hooks/use-transactions";
 import { useNetWorth } from "@/hooks/use-networth";
-import type { CategoryType } from "@/types";
+import type { TransactionType } from "@/types";
 
 export function DashboardClient() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -170,8 +169,8 @@ export function DashboardClient() {
                 <BudgetProgress
                   type="savings"
                   label="Savings (20%)"
-                  current={summary?.savings.current || 0}
-                  goal={summary?.savings.goal || 0}
+                  current={(summary?.savings.current || 0) + (summary?.investments?.current || 0)}
+                  goal={(summary?.savings.goal || 0) + (summary?.investments?.goal || 0)}
                 />
               </>
             )}
@@ -228,11 +227,13 @@ export function DashboardClient() {
                   transaction={{
                     id: transaction.id,
                     userId: "",
+                    type: transaction.type as TransactionType,
                     amount: transaction.amount,
                     description: transaction.description,
                     notes: transaction.notes,
                     transactionDate: transaction.transactionDate,
                     categoryId: transaction.category?.id || null,
+                    subCategoryId: transaction.subCategory?.id || null,
                     accountId: transaction.account?.id || null,
                     createdAt: new Date(),
                     updatedAt: new Date(),
@@ -241,9 +242,21 @@ export function DashboardClient() {
                           id: transaction.category.id,
                           userId: "",
                           name: transaction.category.name,
-                          type: transaction.category.type as CategoryType,
-                          color: transaction.category.color || "#6b7280",
                           icon: transaction.category.icon,
+                          sortOrder: 0,
+                          isSystem: false,
+                          isArchived: false,
+                          createdAt: new Date(),
+                          updatedAt: new Date(),
+                        }
+                      : null,
+                    subCategory: transaction.subCategory
+                      ? {
+                          id: transaction.subCategory.id,
+                          categoryId: transaction.category?.id || "",
+                          userId: "",
+                          name: transaction.subCategory.name,
+                          icon: transaction.subCategory.icon,
                           sortOrder: 0,
                           isSystem: false,
                           isArchived: false,
@@ -274,14 +287,6 @@ export function DashboardClient() {
           )}
         </div>
 
-        {/* Floating Action Button - Modern Design */}
-        <Link href="/transactions/new" className="md:hidden">
-          <button
-            className="fab-modern fixed right-5 bottom-24 h-14 w-14 rounded-full flex items-center justify-center text-white active:scale-90 transition-transform z-40"
-          >
-            <Plus className="h-6 w-6" strokeWidth={2.5} />
-          </button>
-        </Link>
       </div>
     </div>
   );

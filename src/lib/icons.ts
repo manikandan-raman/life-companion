@@ -1,0 +1,195 @@
+import {
+  Briefcase,
+  Gift,
+  TrendingUp,
+  PlusCircle,
+  Home,
+  ShoppingCart,
+  Zap,
+  Car,
+  Shield,
+  Heart,
+  CreditCard,
+  Film,
+  Utensils,
+  ShoppingBag,
+  Tv,
+  MoreHorizontal,
+  PiggyBank,
+  Landmark,
+  BarChart,
+  Lock,
+  LifeBuoy,
+  Circle,
+  ShoppingBasket,
+  Receipt,
+  GraduationCap,
+  Users,
+  UtensilsCrossed,
+  Sparkles,
+  Plane,
+  Palette,
+  Building2,
+  Plus,
+  Folder,
+  Tag,
+  Coffee,
+  Wine,
+  Pizza,
+  Pill,
+  Stethoscope,
+  Activity,
+  Dumbbell,
+  Scissors,
+  Droplet,
+  Wifi,
+  Phone,
+  Smartphone,
+  Monitor,
+  Fuel,
+  Bus,
+  Train,
+  Bike,
+  ParkingSquare,
+  Wrench,
+  BookOpen,
+  School,
+  Baby,
+  Shirt,
+  Sofa,
+  Lightbulb,
+  Flame,
+  Banknote,
+  Wallet,
+  TrendingDown,
+  HandCoins,
+  Target,
+  CircleDollarSign,
+  Coins,
+  type LucideIcon,
+} from "lucide-react";
+
+export const iconMap: Record<string, LucideIcon> = {
+  // Basic
+  circle: Circle,
+  Circle: Circle,
+  
+  // Income & Finance
+  briefcase: Briefcase,
+  Briefcase: Briefcase,
+  gift: Gift,
+  Gift: Gift,
+  "trending-up": TrendingUp,
+  TrendingUp: TrendingUp,
+  TrendingDown: TrendingDown,
+  "plus-circle": PlusCircle,
+  PlusCircle: PlusCircle,
+  Plus: Plus,
+  Banknote: Banknote,
+  Wallet: Wallet,
+  HandCoins: HandCoins,
+  Target: Target,
+  CircleDollarSign: CircleDollarSign,
+  Coins: Coins,
+  
+  // Home & Housing
+  home: Home,
+  Home: Home,
+  Sofa: Sofa,
+  Lightbulb: Lightbulb,
+  Flame: Flame,
+  Building2: Building2,
+  
+  // Shopping
+  "shopping-cart": ShoppingCart,
+  ShoppingCart: ShoppingCart,
+  ShoppingBasket: ShoppingBasket,
+  "shopping-bag": ShoppingBag,
+  ShoppingBag: ShoppingBag,
+  Shirt: Shirt,
+  
+  // Utilities
+  zap: Zap,
+  Zap: Zap,
+  Wifi: Wifi,
+  Phone: Phone,
+  Smartphone: Smartphone,
+  Monitor: Monitor,
+  Droplet: Droplet,
+  
+  // Transportation
+  car: Car,
+  Car: Car,
+  Fuel: Fuel,
+  Bus: Bus,
+  Train: Train,
+  Bike: Bike,
+  ParkingSquare: ParkingSquare,
+  Plane: Plane,
+  Wrench: Wrench,
+  
+  // Health & Wellness
+  shield: Shield,
+  Shield: Shield,
+  heart: Heart,
+  Heart: Heart,
+  Pill: Pill,
+  Stethoscope: Stethoscope,
+  Activity: Activity,
+  Dumbbell: Dumbbell,
+  
+  // Personal Care
+  Scissors: Scissors,
+  Sparkles: Sparkles,
+  
+  // Finance & Banking
+  "credit-card": CreditCard,
+  CreditCard: CreditCard,
+  landmark: Landmark,
+  Landmark: Landmark,
+  "bar-chart": BarChart,
+  BarChart: BarChart,
+  lock: Lock,
+  Lock: Lock,
+  "piggy-bank": PiggyBank,
+  PiggyBank: PiggyBank,
+  "life-buoy": LifeBuoy,
+  LifeBuoy: LifeBuoy,
+  
+  // Entertainment
+  film: Film,
+  Film: Film,
+  tv: Tv,
+  Tv: Tv,
+  Palette: Palette,
+  
+  // Food & Dining
+  utensils: Utensils,
+  Utensils: Utensils,
+  UtensilsCrossed: UtensilsCrossed,
+  Coffee: Coffee,
+  Wine: Wine,
+  Pizza: Pizza,
+  
+  // Education
+  Receipt: Receipt,
+  GraduationCap: GraduationCap,
+  BookOpen: BookOpen,
+  School: School,
+  
+  // Family & Social
+  Users: Users,
+  Baby: Baby,
+  
+  // Misc
+  "more-horizontal": MoreHorizontal,
+  MoreHorizontal: MoreHorizontal,
+  Folder: Folder,
+  Tag: Tag,
+};
+
+export function getIcon(iconName: string | null | undefined): LucideIcon {
+  if (!iconName) return Circle;
+  return iconMap[iconName] || Circle;
+}
+

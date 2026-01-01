@@ -2,11 +2,12 @@ import type {
   User,
   Account,
   Category,
+  SubCategory,
   Tag,
   Transaction,
   BudgetGoal,
   AccountType,
-  CategoryType,
+  TransactionType,
   Asset,
   AssetValuation,
   Liability,
@@ -24,11 +25,12 @@ export type {
   User,
   Account,
   Category,
+  SubCategory,
   Tag,
   Transaction,
   BudgetGoal,
   AccountType,
-  CategoryType,
+  TransactionType,
   Asset,
   AssetValuation,
   Liability,
@@ -41,10 +43,16 @@ export type {
   BillPayment,
 };
 
+// Category with nested sub-categories
+export interface CategoryWithSubCategories extends Category {
+  subCategories: SubCategory[];
+}
+
 // Extended types with relations
 export interface TransactionWithRelations extends Transaction {
   account: Account | null;
   category: Category | null;
+  subCategory: SubCategory | null;
   tags: Tag[];
 }
 
@@ -116,11 +124,11 @@ export interface MonthlySummary {
   totalIncome: number;
   totalExpense: number;
   balance: number;
-  byCategory: CategorySummary[];
+  byType: TypeSummary[];
 }
 
-export interface CategorySummary {
-  type: CategoryType;
+export interface TypeSummary {
+  type: TransactionType;
   total: number;
   goal: number;
   percentage: number;
@@ -128,10 +136,12 @@ export interface CategorySummary {
 
 // Form types
 export interface TransactionFormData {
+  type: TransactionType;
   amount: number;
-  description: string;
+  description?: string;
   notes?: string;
   categoryId: string;
+  subCategoryId?: string;
   accountId?: string;
   transactionDate: Date;
   tagIds?: string[];
@@ -148,8 +158,12 @@ export interface AccountFormData {
 
 export interface CategoryFormData {
   name: string;
-  type: CategoryType;
-  color?: string;
+  icon?: string;
+}
+
+export interface SubCategoryFormData {
+  categoryId: string;
+  name: string;
   icon?: string;
 }
 
@@ -171,7 +185,8 @@ export interface TransactionFilters {
   startDate?: Date;
   endDate?: Date;
   categoryId?: string;
-  categoryType?: CategoryType;
+  subCategoryId?: string;
+  type?: TransactionType;
   accountId?: string;
   tagIds?: string[];
   search?: string;
@@ -243,6 +258,7 @@ export interface NetWorthHistory {
 // Bill types with relations
 export interface RecurringBillWithRelations extends RecurringBill {
   category: Category | null;
+  subCategory: SubCategory | null;
   account: Account | null;
   payments: BillPayment[];
 }
@@ -258,6 +274,7 @@ export interface RecurringBillFormData {
   name: string;
   amount: number;
   categoryId?: string;
+  subCategoryId?: string;
   accountId?: string;
   dueDay: number;
   notes?: string;
@@ -272,3 +289,11 @@ export interface BillPaymentFormData {
 // Bill status type
 export type BillStatus = "paid" | "overdue" | "due_today" | "upcoming" | "pending";
 
+// Transaction type labels for UI
+export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
+  income: "Income",
+  needs: "Needs",
+  wants: "Wants",
+  savings: "Savings",
+  investments: "Investments",
+};

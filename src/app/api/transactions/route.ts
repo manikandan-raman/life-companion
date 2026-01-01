@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db, transactions, categories, accounts, tags, transactionTags } from "@/db";
+import { db, transactions, categories, accounts, tags, transactionTags, subCategories } from "@/db";
 import { eq, desc, asc, and, gte, lte, sql, inArray, ilike, or } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
 import { transactionSchema, transactionFilterSchema } from "@/schemas/transaction";
@@ -15,7 +15,8 @@ export async function GET(request: Request) {
       startDate: searchParams.get("startDate") || undefined,
       endDate: searchParams.get("endDate") || undefined,
       categoryId: searchParams.get("categoryId") || undefined,
-      categoryType: searchParams.get("categoryType") || undefined,
+      subCategoryId: searchParams.get("subCategoryId") || undefined,
+      type: searchParams.get("type") || undefined,
       accountId: searchParams.get("accountId") || undefined,
       search: searchParams.get("search") || undefined,
       sortBy: searchParams.get("sortBy") || "transactionDate",
@@ -36,6 +37,12 @@ export async function GET(request: Request) {
     if (params.categoryId) {
       conditions.push(eq(transactions.categoryId, params.categoryId));
     }
+    if (params.subCategoryId) {
+      conditions.push(eq(transactions.subCategoryId, params.subCategoryId));
+    }
+    if (params.type) {
+      conditions.push(eq(transactions.type, params.type));
+    }
     if (params.accountId) {
       conditions.push(eq(transactions.accountId, params.accountId));
     }
@@ -49,33 +56,6 @@ export async function GET(request: Request) {
           ilike(transactions.notes, searchTerm)
         )!
       );
-    }
-
-    // For category type filtering, we need to get category IDs first
-    let categoryIds: string[] | null = null;
-    if (params.categoryType) {
-      const matchingCategories = await db.query.categories.findMany({
-        where: and(
-          eq(categories.userId, userId),
-          eq(categories.type, params.categoryType)
-        ),
-        columns: { id: true },
-      });
-      categoryIds = matchingCategories.map((c) => c.id);
-      
-      // If no categories match the type, return empty result
-      if (categoryIds.length === 0) {
-        return NextResponse.json({
-          data: [],
-          total: 0,
-          page: params.page,
-          pageSize: params.pageSize,
-          totalPages: 0,
-        });
-      }
-      
-      // Add category type condition
-      conditions.push(inArray(transactions.categoryId, categoryIds));
     }
 
     // Get total count with all filters applied
@@ -106,6 +86,7 @@ export async function GET(request: Request) {
       where: and(...conditions),
       with: {
         category: true,
+        subCategory: true,
         account: true,
         transactionTags: {
           with: {
@@ -177,6 +158,23 @@ export async function POST(request: Request) {
       }
     }
 
+    // Verify sub-category belongs to user and parent category
+    if (data.subCategoryId) {
+      const subCategory = await db.query.subCategories.findFirst({
+        where: and(
+          eq(subCategories.id, data.subCategoryId),
+          eq(subCategories.userId, userId),
+          eq(subCategories.categoryId, data.categoryId)
+        ),
+      });
+      if (!subCategory) {
+        return NextResponse.json(
+          { error: "Invalid sub-category" },
+          { status: 400 }
+        );
+      }
+    }
+
     // Verify account belongs to user
     if (data.accountId) {
       const account = await db.query.accounts.findFirst({
@@ -198,10 +196,12 @@ export async function POST(request: Request) {
       .insert(transactions)
       .values({
         userId,
+        type: data.type,
         amount: String(data.amount),
-        description: data.description,
+        description: data.description || null,
         notes: data.notes || null,
         categoryId: data.categoryId,
+        subCategoryId: data.subCategoryId || null,
         accountId: data.accountId || null,
         transactionDate: data.transactionDate.toISOString().split("T")[0],
       })
@@ -232,6 +232,7 @@ export async function POST(request: Request) {
       where: eq(transactions.id, newTransaction.id),
       with: {
         category: true,
+        subCategory: true,
         account: true,
         transactionTags: {
           with: {

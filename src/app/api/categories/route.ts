@@ -4,7 +4,7 @@ import { eq, and, asc } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
 import { categorySchema } from "@/schemas/category";
 
-// GET - List all categories for the user
+// GET - List all categories with sub-categories for the user
 export async function GET() {
   try {
     const { userId } = await requireAuth();
@@ -14,7 +14,13 @@ export async function GET() {
         eq(categories.userId, userId),
         eq(categories.isArchived, false)
       ),
-      orderBy: [asc(categories.type), asc(categories.sortOrder), asc(categories.name)],
+      with: {
+        subCategories: {
+          where: eq(categories.isArchived, false),
+          orderBy: [asc(categories.sortOrder), asc(categories.name)],
+        },
+      },
+      orderBy: [asc(categories.sortOrder), asc(categories.name)],
     });
 
     return NextResponse.json({ data: userCategories });
@@ -47,12 +53,9 @@ export async function POST(request: Request) {
 
     const data = validationResult.data;
 
-    // Get max sort order for this type
+    // Get max sort order
     const existingCategories = await db.query.categories.findMany({
-      where: and(
-        eq(categories.userId, userId),
-        eq(categories.type, data.type)
-      ),
+      where: eq(categories.userId, userId),
     });
     const maxSortOrder = Math.max(0, ...existingCategories.map((c) => c.sortOrder || 0));
 
@@ -62,8 +65,6 @@ export async function POST(request: Request) {
       .values({
         userId,
         name: data.name,
-        type: data.type,
-        color: data.color,
         icon: data.icon,
         sortOrder: maxSortOrder + 1,
         isSystem: false,
@@ -85,4 +86,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

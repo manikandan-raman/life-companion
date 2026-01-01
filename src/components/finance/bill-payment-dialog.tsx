@@ -28,8 +28,19 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import type { RecurringBillWithRelations } from "@/hooks/use-bills";
 
+// Transaction type options for bill payments (excluding income)
+const BILL_TYPE_OPTIONS = [
+  { value: "needs", label: "Needs" },
+  { value: "wants", label: "Wants" },
+  { value: "savings", label: "Savings" },
+  { value: "investments", label: "Investments" },
+] as const;
+
+type BillTransactionType = "needs" | "wants" | "savings" | "investments";
+
 // Define form values explicitly to avoid type issues with z.coerce.date()
 interface FormValues {
+  type: BillTransactionType;
   paidDate: Date;
   paidAmount: number;
   accountId: string;
@@ -63,6 +74,7 @@ export function BillPaymentDialog({
   } = useForm<FormValues>({
     resolver: zodResolver(billPaymentSchema) as any,
     defaultValues: {
+      type: "needs",
       paidDate: new Date(),
       paidAmount: bill ? parseFloat(String(bill.amount)) : 0,
       accountId: bill?.accountId || "",
@@ -70,7 +82,6 @@ export function BillPaymentDialog({
   });
 
   // Reset form when bill changes
-  const billId = bill?.id;
   const billAmount = bill ? parseFloat(String(bill.amount)) : 0;
   const billAccountId = bill?.accountId || "";
 
@@ -88,6 +99,7 @@ export function BillPaymentDialog({
     }
   }
 
+  const selectedType = watch("type");
   const selectedDate = watch("paidDate");
   const selectedAccountId = watch("accountId");
 
@@ -120,6 +132,29 @@ export function BillPaymentDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 mt-4">
+          {/* Transaction Type */}
+          <div className="space-y-2">
+            <Label>Transaction Type *</Label>
+            <Select
+              value={selectedType}
+              onValueChange={(value) => setValue("type", value as BillTransactionType)}
+            >
+              <SelectTrigger className={cn(errors.type && "border-destructive")}>
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                {BILL_TYPE_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.type && (
+              <p className="text-sm text-destructive">{errors.type.message}</p>
+            )}
+          </div>
+
           {/* Paid Date */}
           <div className="space-y-2">
             <Label>Payment Date *</Label>
@@ -162,7 +197,7 @@ export function BillPaymentDialog({
               id="paidAmount"
               type="number"
               step="0.01"
-              placeholder="0.00"
+              placeholder="₹0.00"
               {...register("paidAmount", { valueAsNumber: true })}
               className={cn(errors.paidAmount && "border-destructive")}
             />
@@ -225,4 +260,3 @@ export function BillPaymentDialog({
     </Dialog>
   );
 }
-

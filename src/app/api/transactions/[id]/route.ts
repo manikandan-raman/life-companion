@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db, transactions, categories, accounts, tags, transactionTags } from "@/db";
+import { db, transactions, categories, accounts, tags, transactionTags, subCategories } from "@/db";
 import { eq, and, inArray } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
 import { transactionSchema } from "@/schemas/transaction";
@@ -21,6 +21,7 @@ export async function GET(request: Request, { params }: RouteParams) {
       ),
       with: {
         category: true,
+        subCategory: true,
         account: true,
         transactionTags: {
           with: {
@@ -105,6 +106,24 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       }
     }
 
+    // Verify sub-category belongs to user and parent category if provided
+    if (data.subCategoryId) {
+      const categoryIdToCheck = data.categoryId || existingTransaction.categoryId;
+      const subCategory = await db.query.subCategories.findFirst({
+        where: and(
+          eq(subCategories.id, data.subCategoryId),
+          eq(subCategories.userId, userId),
+          eq(subCategories.categoryId, categoryIdToCheck!)
+        ),
+      });
+      if (!subCategory) {
+        return NextResponse.json(
+          { error: "Invalid sub-category" },
+          { status: 400 }
+        );
+      }
+    }
+
     // Verify account belongs to user if provided
     if (data.accountId) {
       const account = await db.query.accounts.findFirst({
@@ -126,17 +145,23 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       updatedAt: new Date(),
     };
 
+    if (data.type !== undefined) {
+      updateData.type = data.type;
+    }
     if (data.amount !== undefined) {
       updateData.amount = String(data.amount);
     }
     if (data.description !== undefined) {
-      updateData.description = data.description;
+      updateData.description = data.description || null;
     }
     if (data.notes !== undefined) {
       updateData.notes = data.notes || null;
     }
     if (data.categoryId !== undefined) {
       updateData.categoryId = data.categoryId;
+    }
+    if (data.subCategoryId !== undefined) {
+      updateData.subCategoryId = data.subCategoryId || null;
     }
     if (data.accountId !== undefined) {
       updateData.accountId = data.accountId || null;
@@ -183,6 +208,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       where: eq(transactions.id, id),
       with: {
         category: true,
+        subCategory: true,
         account: true,
         transactionTags: {
           with: {
@@ -252,4 +278,3 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     );
   }
 }
-

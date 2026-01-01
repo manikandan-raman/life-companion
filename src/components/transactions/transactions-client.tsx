@@ -32,13 +32,13 @@ import {
   type GroupedTransaction,
 } from "@/hooks/use-transactions";
 import { cn } from "@/lib/utils";
-import type { CategoryType } from "@/types";
+import type { TransactionType } from "@/types";
 
 export function TransactionsClient() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [categoryType, setCategoryType] = useState<CategoryType | "all">("all");
+  const [transactionType, setTransactionType] = useState<TransactionType | "all">("all");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -69,7 +69,7 @@ export function TransactionsClient() {
   const { data, isLoading } = useGroupedTransactions({
     startDate,
     endDate,
-    categoryType: categoryType === "all" ? undefined : categoryType,
+    type: transactionType === "all" ? undefined : transactionType,
     search: debouncedSearch || undefined,
     sortOrder,
   });
@@ -83,7 +83,7 @@ export function TransactionsClient() {
       group.transactions.forEach((t) => {
         const amount =
           typeof t.amount === "string" ? parseFloat(t.amount) : t.amount;
-        if (t.category?.type === "income") {
+        if (t.type === "income") {
           acc.income += amount;
         } else {
           acc.expense += amount;
@@ -94,10 +94,10 @@ export function TransactionsClient() {
     { income: 0, expense: 0 }
   );
 
-  const hasActiveFilters = categoryType !== "all" || debouncedSearch;
+  const hasActiveFilters = transactionType !== "all" || debouncedSearch;
 
   const clearFilters = () => {
-    setCategoryType("all");
+    setTransactionType("all");
     setSearchQuery("");
     setDebouncedSearch("");
   };
@@ -106,11 +106,13 @@ export function TransactionsClient() {
   const mapToTransactionWithRelations = (t: GroupedTransaction) => ({
     id: t.id,
     userId: "",
+    type: t.type as TransactionType,
     amount: t.amount,
     description: t.description,
     notes: t.notes,
     transactionDate: t.transactionDate,
     categoryId: t.category?.id || null,
+    subCategoryId: t.subCategory?.id || null,
     accountId: t.account?.id || null,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -119,9 +121,21 @@ export function TransactionsClient() {
           id: t.category.id,
           userId: "",
           name: t.category.name,
-          type: t.category.type as CategoryType,
-          color: t.category.color || "#6b7280",
           icon: t.category.icon,
+          sortOrder: null,
+          isSystem: null,
+          isArchived: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+      : null,
+    subCategory: t.subCategory
+      ? {
+          id: t.subCategory.id,
+          categoryId: t.category?.id || "",
+          userId: "",
+          name: t.subCategory.name,
+          icon: t.subCategory.icon,
           sortOrder: null,
           isSystem: null,
           isArchived: null,
@@ -173,9 +187,9 @@ export function TransactionsClient() {
           </div>
 
           <Select
-            value={categoryType}
+            value={transactionType}
             onValueChange={(value) =>
-              setCategoryType(value as CategoryType | "all")
+              setTransactionType(value as TransactionType | "all")
             }
           >
             <SelectTrigger className="w-full sm:w-[130px]">
@@ -187,6 +201,7 @@ export function TransactionsClient() {
               <SelectItem value="needs">Needs</SelectItem>
               <SelectItem value="wants">Wants</SelectItem>
               <SelectItem value="savings">Savings</SelectItem>
+              <SelectItem value="investments">Investments</SelectItem>
             </SelectContent>
           </Select>
 
@@ -208,11 +223,11 @@ export function TransactionsClient() {
         {hasActiveFilters && (
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs text-muted-foreground">Filters:</span>
-            {categoryType !== "all" && (
+            {transactionType !== "all" && (
               <Badge variant="secondary" className="gap-1 pl-2 pr-1 h-6">
-                <span className="capitalize">{categoryType}</span>
+                <span className="capitalize">{transactionType}</span>
                 <button
-                  onClick={() => setCategoryType("all")}
+                  onClick={() => setTransactionType("all")}
                   className="ml-1 hover:bg-muted rounded p-0.5"
                 >
                   <X className="h-3 w-3" />
@@ -288,7 +303,7 @@ export function TransactionsClient() {
                   )}
                 >
                   {summary.income - summary.expense >= 0 ? "" : "-"}₹
-                  {(summary.income - summary.expense).toLocaleString("en-IN")}
+                  {Math.abs(summary.income - summary.expense).toLocaleString("en-IN")}
                 </p>
               </div>
             </div>

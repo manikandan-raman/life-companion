@@ -15,10 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { useAccounts } from "@/hooks/use-accounts";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api-client";
-import type { Category } from "@/types";
+import { useAccounts, useCategories } from "@/hooks/use-accounts";
 import { Loader2 } from "lucide-react";
 
 type FormValues = z.infer<typeof recurringBillSchema>;
@@ -39,16 +36,7 @@ export function BillForm({
   submitLabel = "Save",
 }: BillFormProps) {
   const { data: accounts, isLoading: accountsLoading } = useAccounts();
-  const { data: categoriesData, isLoading: categoriesLoading } = useQuery({
-    queryKey: ["categories"],
-    queryFn: () => api.get<{ data: Category[] }>("/api/categories"),
-  });
-  const categories = categoriesData?.data;
-
-  // Filter to expense categories (needs, wants) for bills
-  const expenseCategories = categories?.filter(
-    (cat) => cat.type === "needs" || cat.type === "wants"
-  );
+  const { data: categories, isLoading: categoriesLoading } = useCategories();
 
   const {
     register,
@@ -60,7 +48,7 @@ export function BillForm({
     resolver: zodResolver(recurringBillSchema),
     defaultValues: {
       name: "",
-      amount: 0,
+      amount: undefined,
       dueDay: 1,
       isActive: true,
       ...defaultValues,
@@ -68,7 +56,18 @@ export function BillForm({
   });
 
   const selectedCategoryId = watch("categoryId");
+  const selectedSubCategoryId = watch("subCategoryId");
   const selectedAccountId = watch("accountId");
+
+  // Get sub-categories for the selected category
+  const selectedCategory = categories?.find((c) => c.id === selectedCategoryId);
+  const subCategoriesForCategory = selectedCategory?.subCategories || [];
+
+  // Reset sub-category when category changes
+  const handleCategoryChange = (categoryId: string) => {
+    setValue("categoryId", categoryId === "none" ? null : categoryId);
+    setValue("subCategoryId", null);
+  };
 
   const handleFormSubmit = async (data: FormValues) => {
     await onSubmit(data);
@@ -99,7 +98,7 @@ export function BillForm({
           id="amount"
           type="number"
           step="0.01"
-          placeholder="0.00"
+          placeholder="₹0.00"
           {...register("amount", { valueAsNumber: true })}
           className={cn(errors.amount && "border-destructive")}
         />
@@ -127,12 +126,10 @@ export function BillForm({
 
       {/* Category */}
       <div className="space-y-2">
-        <Label>Category *</Label>
+        <Label>Category</Label>
         <Select
           value={selectedCategoryId || "none"}
-          onValueChange={(value) =>
-            setValue("categoryId", value === "none" ? null : value)
-          }
+          onValueChange={handleCategoryChange}
           disabled={isLoadingData}
         >
           <SelectTrigger>
@@ -140,15 +137,9 @@ export function BillForm({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="none">No category</SelectItem>
-            {expenseCategories?.map((cat) => (
+            {categories?.map((cat) => (
               <SelectItem key={cat.id} value={cat.id}>
-                <span className="flex items-center gap-2">
-                  <span
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: cat.color || "#6b7280" }}
-                  />
-                  {cat.name}
-                </span>
+                {cat.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -157,6 +148,32 @@ export function BillForm({
           This category will be used when creating transactions
         </p>
       </div>
+
+      {/* Sub-category (only show if category is selected and has sub-categories) */}
+      {selectedCategoryId && subCategoriesForCategory.length > 0 && (
+        <div className="space-y-2">
+          <Label>Sub-category (Optional)</Label>
+          <Select
+            value={selectedSubCategoryId || "none"}
+            onValueChange={(value) =>
+              setValue("subCategoryId", value === "none" ? null : value)
+            }
+            disabled={isLoadingData}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select sub-category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">No sub-category</SelectItem>
+              {subCategoriesForCategory.map((subCat) => (
+                <SelectItem key={subCat.id} value={subCat.id}>
+                  {subCat.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {/* Default Account */}
       <div className="space-y-2">

@@ -6,23 +6,13 @@ import { toast } from "sonner";
 import { TransactionForm } from "@/components/finance/transaction-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useCreateTransaction } from "@/hooks/use-transactions";
-// Form values type that matches the form component
-interface FormValues {
-  amount: number;
-  description: string;
-  notes?: string | null;
-  categoryId: string;
-  accountId?: string | null;
-  transactionDate: Date;
-  tagIds?: string[];
-}
+import { useCreateTransaction, type TransactionFormValues } from "@/hooks/use-transactions";
 
 export default function NewTransactionPage() {
   const router = useRouter();
   const createTransaction = useCreateTransaction();
 
-  const handleSubmit = async (data: FormValues) => {
+  const handleSubmit = async (data: TransactionFormValues) => {
     try {
       await createTransaction.mutateAsync(data);
       toast.success("Transaction created successfully");
@@ -66,4 +56,3 @@ export default function NewTransactionPage() {
     </div>
   );
 }
-

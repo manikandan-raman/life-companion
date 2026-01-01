@@ -20,11 +20,13 @@ export const accountTypeEnum = pgEnum("account_type", [
   "credit_card",
 ]);
 
-export const categoryTypeEnum = pgEnum("category_type", [
+// Transaction type (moved from categories)
+export const transactionTypeEnum = pgEnum("transaction_type", [
   "income",
   "needs",
   "wants",
   "savings",
+  "investments",
 ]);
 
 export const assetTypeEnum = pgEnum("asset_type", [
@@ -78,18 +80,34 @@ export const accounts = pgTable("accounts", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Categories table
+// Categories table (type-agnostic now)
 export const categories = pgTable("categories", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   name: varchar("name", { length: 100 }).notNull(),
-  type: categoryTypeEnum("type").notNull(),
-  color: varchar("color", { length: 7 }).notNull().default("#6b7280"),
   icon: varchar("icon", { length: 50 }).default("circle"),
   sortOrder: integer("sort_order").default(0),
-  isSystem: boolean("is_system").default(false), // For default categories
+  isSystem: boolean("is_system").default(false),
+  isArchived: boolean("is_archived").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Sub-categories table
+export const subCategories = pgTable("sub_categories", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  categoryId: uuid("category_id")
+    .references(() => categories.id, { onDelete: "cascade" })
+    .notNull(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  icon: varchar("icon", { length: 50 }).default("circle"),
+  sortOrder: integer("sort_order").default(0),
+  isSystem: boolean("is_system").default(false),
   isArchived: boolean("is_archived").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -112,12 +130,15 @@ export const transactions = pgTable("transactions", {
   userId: uuid("user_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
+  type: transactionTypeEnum("type").notNull(),
   accountId: uuid("account_id")
     .references(() => accounts.id, { onDelete: "set null" }),
   categoryId: uuid("category_id")
     .references(() => categories.id, { onDelete: "set null" }),
+  subCategoryId: uuid("sub_category_id")
+    .references(() => subCategories.id, { onDelete: "set null" }),
   amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
-  description: varchar("description", { length: 255 }).notNull(),
+  description: varchar("description", { length: 255 }),
   notes: text("notes"),
   transactionDate: date("transaction_date").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -251,6 +272,8 @@ export const recurringBills = pgTable("recurring_bills", {
   amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
   categoryId: uuid("category_id")
     .references(() => categories.id, { onDelete: "set null" }),
+  subCategoryId: uuid("sub_category_id")
+    .references(() => subCategories.id, { onDelete: "set null" }),
   accountId: uuid("account_id")
     .references(() => accounts.id, { onDelete: "set null" }),
   dueDay: integer("due_day").notNull(), // 1-31
@@ -282,6 +305,7 @@ export const billPayments = pgTable("bill_payments", {
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   categories: many(categories),
+  subCategories: many(subCategories),
   tags: many(tags),
   transactions: many(transactions),
   budgetGoals: many(budgetGoals),
@@ -304,7 +328,22 @@ export const categoriesRelations = relations(categories, ({ one, many }) => ({
     fields: [categories.userId],
     references: [users.id],
   }),
+  subCategories: many(subCategories),
   transactions: many(transactions),
+  recurringBills: many(recurringBills),
+}));
+
+export const subCategoriesRelations = relations(subCategories, ({ one, many }) => ({
+  category: one(categories, {
+    fields: [subCategories.categoryId],
+    references: [categories.id],
+  }),
+  user: one(users, {
+    fields: [subCategories.userId],
+    references: [users.id],
+  }),
+  transactions: many(transactions),
+  recurringBills: many(recurringBills),
 }));
 
 export const tagsRelations = relations(tags, ({ one, many }) => ({
@@ -327,6 +366,10 @@ export const transactionsRelations = relations(transactions, ({ one, many }) => 
   category: one(categories, {
     fields: [transactions.categoryId],
     references: [categories.id],
+  }),
+  subCategory: one(subCategories, {
+    fields: [transactions.subCategoryId],
+    references: [subCategories.id],
   }),
   transactionTags: many(transactionTags),
 }));
@@ -395,6 +438,10 @@ export const recurringBillsRelations = relations(recurringBills, ({ one, many })
     fields: [recurringBills.categoryId],
     references: [categories.id],
   }),
+  subCategory: one(subCategories, {
+    fields: [recurringBills.subCategoryId],
+    references: [subCategories.id],
+  }),
   account: one(accounts, {
     fields: [recurringBills.accountId],
     references: [accounts.id],
@@ -426,6 +473,9 @@ export type NewAccount = typeof accounts.$inferInsert;
 
 export type Category = typeof categories.$inferSelect;
 export type NewCategory = typeof categories.$inferInsert;
+
+export type SubCategory = typeof subCategories.$inferSelect;
+export type NewSubCategory = typeof subCategories.$inferInsert;
 
 export type Tag = typeof tags.$inferSelect;
 export type NewTag = typeof tags.$inferInsert;
@@ -461,8 +511,7 @@ export type BillPayment = typeof billPayments.$inferSelect;
 export type NewBillPayment = typeof billPayments.$inferInsert;
 
 export type AccountType = (typeof accountTypeEnum.enumValues)[number];
-export type CategoryType = (typeof categoryTypeEnum.enumValues)[number];
+export type TransactionType = (typeof transactionTypeEnum.enumValues)[number];
 export type AssetType = (typeof assetTypeEnum.enumValues)[number];
 export type AssetSubtype = (typeof assetSubtypeEnum.enumValues)[number];
 export type LiabilityType = (typeof liabilityTypeEnum.enumValues)[number];
-

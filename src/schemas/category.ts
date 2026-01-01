@@ -5,13 +5,18 @@ export const categorySchema = z.object({
     .string()
     .min(1, "Name is required")
     .max(100, "Name must be less than 100 characters"),
-  type: z.enum(["income", "needs", "wants", "savings"], {
-    message: "Invalid category type",
-  }),
-  color: z
+  icon: z
     .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, "Invalid color format")
-    .default("#6b7280"),
+    .max(50, "Icon name must be less than 50 characters")
+    .default("circle"),
+});
+
+export const subCategorySchema = z.object({
+  categoryId: z.string().uuid("Invalid category"),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(100, "Name must be less than 100 characters"),
   icon: z
     .string()
     .max(50, "Icon name must be less than 50 characters")
@@ -62,5 +67,6 @@ export const budgetGoalSchema = z.object({
 );
 
 export type CategoryFormData = z.infer<typeof categorySchema>;
+export type SubCategoryFormData = z.infer<typeof subCategorySchema>;
 export type TagFormData = z.infer<typeof tagSchema>;
 export type BudgetGoalFormData = z.infer<typeof budgetGoalSchema>;

@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+// Transaction type for bill payments
+export const billTransactionTypeSchema = z.enum(
+  ["needs", "wants", "savings", "investments"],
+  { message: "Please select a transaction type" }
+);
+
 // Recurring Bill schemas
 export const recurringBillSchema = z.object({
   name: z
@@ -11,6 +17,7 @@ export const recurringBillSchema = z.object({
     .positive("Amount must be greater than 0")
     .multipleOf(0.01, "Amount can have at most 2 decimal places"),
   categoryId: z.string().uuid("Invalid category").optional().nullable(),
+  subCategoryId: z.string().uuid("Invalid sub-category").optional().nullable(),
   accountId: z.string().uuid("Invalid account").optional().nullable(),
   dueDay: z
     .number()
@@ -29,6 +36,7 @@ export type RecurringBillFormData = z.infer<typeof recurringBillSchema>;
 
 // Bill Payment schemas
 export const billPaymentSchema = z.object({
+  type: billTransactionTypeSchema,
   paidDate: z.coerce.date({ message: "Invalid date" }),
   paidAmount: z
     .number({ message: "Amount must be a number" })
@@ -44,6 +52,7 @@ export const billFilterSchema = z.object({
   month: z.coerce.number().int().min(1).max(12).optional(),
   year: z.coerce.number().int().min(2000).max(2100).optional(),
   categoryId: z.string().uuid().optional(),
+  subCategoryId: z.string().uuid().optional(),
   isActive: z.coerce.boolean().optional(),
   status: z.enum(["paid", "overdue", "due_today", "upcoming", "pending", "all"]).optional(),
 });

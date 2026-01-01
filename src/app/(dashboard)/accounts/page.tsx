@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, Wallet } from "lucide-react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -17,7 +17,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -67,7 +66,7 @@ export default function AccountsPage() {
     defaultValues: {
       name: "",
       type: "bank",
-      balance: 0,
+      balance: undefined,
       color: "#3b82f6",
       icon: "wallet",
       isDefault: false,
@@ -137,103 +136,6 @@ export default function AccountsPage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold">Your Accounts</h2>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Account
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add New Account</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Account Name</Label>
-                    <Input
-                      id="name"
-                      placeholder="e.g., HDFC Bank"
-                      {...register("name")}
-                      className={cn(errors.name && "border-destructive")}
-                    />
-                    {errors.name && (
-                      <p className="text-sm text-destructive">
-                        {errors.name.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Account Type</Label>
-                    <Select
-                      value={selectedType}
-                      onValueChange={(v) => setValue("type", v as FormValues["type"])}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="bank">Bank Account</SelectItem>
-                        <SelectItem value="cash">Cash</SelectItem>
-                        <SelectItem value="credit_card">Credit Card</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="balance">Initial Balance</Label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                        ₹
-                      </span>
-                      <Input
-                        id="balance"
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        className="pl-8"
-                        {...register("balance", { valueAsNumber: true })}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Color</Label>
-                    <div className="flex gap-2">
-                      {colorOptions.map((color) => (
-                        <button
-                          key={color.value}
-                          type="button"
-                          onClick={() => setValue("color", color.value)}
-                          className={cn(
-                            "w-8 h-8 rounded-full transition-transform",
-                            selectedColor === color.value && "ring-2 ring-offset-2 ring-primary scale-110"
-                          )}
-                          style={{ backgroundColor: color.value }}
-                          title={color.label}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={createAccount.isPending}
-                  >
-                    {createAccount.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating...
-                      </>
-                    ) : (
-                      "Create Account"
-                    )}
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
           </div>
 
           {isLoading ? (
@@ -245,8 +147,14 @@ export default function AccountsPage() {
           ) : accounts?.length === 0 ? (
             <Card className="border-dashed">
               <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground mb-4">
-                  No accounts yet. Add your first account to start tracking.
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center">
+                    <Wallet className="h-8 w-8 text-muted-foreground/50" />
+                  </div>
+                </div>
+                <h3 className="font-medium mb-1">No accounts yet</h3>
+                <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">
+                  Add your first account to start tracking your finances
                 </p>
                 <Button onClick={() => setIsDialogOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
@@ -266,7 +174,109 @@ export default function AccountsPage() {
             </div>
           )}
         </div>
+
+        {/* Floating Action Button - Mobile */}
+        <Button
+          size="lg"
+          onClick={() => setIsDialogOpen(true)}
+          className="md:hidden fixed right-4 bottom-24 h-14 w-14 rounded-full shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all hover:scale-105"
+        >
+          <Plus className="h-6 w-6" />
+        </Button>
       </div>
+
+      {/* Add Account Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Account</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Account Name</Label>
+              <Input
+                id="name"
+                placeholder="e.g., HDFC Bank"
+                {...register("name")}
+                className={cn(errors.name && "border-destructive")}
+              />
+              {errors.name && (
+                <p className="text-sm text-destructive">
+                  {errors.name.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Account Type</Label>
+              <Select
+                value={selectedType}
+                onValueChange={(v) => setValue("type", v as FormValues["type"])}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bank">Bank Account</SelectItem>
+                  <SelectItem value="cash">Cash</SelectItem>
+                  <SelectItem value="credit_card">Credit Card</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="balance">Initial Balance</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  ₹
+                </span>
+                <Input
+                  id="balance"
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  className="pl-8"
+                  {...register("balance", { valueAsNumber: true })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Color</Label>
+              <div className="flex gap-2">
+                {colorOptions.map((color) => (
+                  <button
+                    key={color.value}
+                    type="button"
+                    onClick={() => setValue("color", color.value)}
+                    className={cn(
+                      "w-8 h-8 rounded-full transition-transform",
+                      selectedColor === color.value && "ring-2 ring-offset-2 ring-primary scale-110"
+                    )}
+                    style={{ backgroundColor: color.value }}
+                    title={color.label}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={createAccount.isPending}
+            >
+              {createAccount.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                "Create Account"
+              )}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

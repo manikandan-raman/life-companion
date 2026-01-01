@@ -6,15 +6,17 @@ import type {
   TransactionWithRelations,
   PaginatedResponse,
   TransactionFilters,
-  CategoryType,
+  TransactionType,
 } from "@/types";
 
 // Form values type for creating/updating transactions
 export interface TransactionFormValues {
+  type: TransactionType;
   amount: number;
-  description: string;
+  description?: string | null;
   notes?: string | null;
   categoryId: string;
+  subCategoryId?: string | null;
   accountId?: string | null;
   transactionDate: Date;
   tagIds?: string[];
@@ -32,7 +34,8 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
     startDate,
     endDate,
     categoryId,
-    categoryType,
+    subCategoryId,
+    type,
     accountId,
     search,
     sortBy = "transactionDate",
@@ -44,14 +47,15 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
   return useQuery({
     queryKey: [
       "transactions",
-      { startDate, endDate, categoryId, categoryType, accountId, search, sortBy, sortOrder, page, pageSize },
+      { startDate, endDate, categoryId, subCategoryId, type, accountId, search, sortBy, sortOrder, page, pageSize },
     ],
     queryFn: async () => {
       const params: Record<string, string | number> = { page, pageSize, sortBy, sortOrder };
       if (startDate) params.startDate = startDate.toISOString();
       if (endDate) params.endDate = endDate.toISOString();
       if (categoryId) params.categoryId = categoryId;
-      if (categoryType) params.categoryType = categoryType;
+      if (subCategoryId) params.subCategoryId = subCategoryId;
+      if (type) params.type = type;
       if (accountId) params.accountId = accountId;
       if (search) params.search = search;
 
@@ -72,7 +76,6 @@ export interface SpendingByType {
 export interface SpendingByCategory {
   name: string;
   amount: number;
-  color: string;
   type: string;
 }
 
@@ -83,19 +86,24 @@ export interface SummaryData {
   needs: { current: number; goal: number };
   wants: { current: number; goal: number };
   savings: { current: number; goal: number };
+  investments: { current: number; goal: number };
   spendingByType: SpendingByType[];
   spendingByCategory: SpendingByCategory[];
   recentTransactions: Array<{
     id: string;
+    type: string;
     amount: string;
-    description: string;
+    description: string | null;
     notes: string | null;
     transactionDate: string;
     category: {
       id: string;
       name: string;
-      type: string;
-      color: string | null;
+      icon: string | null;
+    } | null;
+    subCategory: {
+      id: string;
+      name: string;
       icon: string | null;
     } | null;
     account: {
@@ -131,15 +139,19 @@ export function useSummary(options: UseSummaryOptions) {
 // Grouped transactions types
 export interface GroupedTransaction {
   id: string;
+  type: string;
   amount: string;
-  description: string;
+  description: string | null;
   notes: string | null;
   transactionDate: string;
   category: {
     id: string;
     name: string;
-    type: string;
-    color: string | null;
+    icon: string | null;
+  } | null;
+  subCategory: {
+    id: string;
+    name: string;
     icon: string | null;
   } | null;
   account: {
@@ -167,20 +179,21 @@ interface UseGroupedTransactionsOptions {
   startDate: Date;
   endDate: Date;
   categoryId?: string;
-  categoryType?: CategoryType;
+  subCategoryId?: string;
+  type?: TransactionType;
   accountId?: string;
   search?: string;
   sortOrder?: "asc" | "desc";
 }
 
 export function useGroupedTransactions(options: UseGroupedTransactionsOptions) {
-  const { startDate, endDate, categoryId, categoryType, accountId, search, sortOrder = "desc" } = options;
+  const { startDate, endDate, categoryId, subCategoryId, type, accountId, search, sortOrder = "desc" } = options;
 
   return useQuery({
     queryKey: [
       "transactions",
       "grouped",
-      { startDate: startDate.toISOString(), endDate: endDate.toISOString(), categoryId, categoryType, accountId, search, sortOrder },
+      { startDate: startDate.toISOString(), endDate: endDate.toISOString(), categoryId, subCategoryId, type, accountId, search, sortOrder },
     ],
     queryFn: async () => {
       const params: Record<string, string> = {
@@ -189,7 +202,8 @@ export function useGroupedTransactions(options: UseGroupedTransactionsOptions) {
         sortOrder,
       };
       if (categoryId) params.categoryId = categoryId;
-      if (categoryType) params.categoryType = categoryType;
+      if (subCategoryId) params.subCategoryId = subCategoryId;
+      if (type) params.type = type;
       if (accountId) params.accountId = accountId;
       if (search) params.search = search;
 

@@ -1,39 +1,9 @@
 import { NextResponse } from "next/server";
-import { db, users, categories, accounts } from "@/db";
+import { db, users, accounts } from "@/db";
 import { eq } from "drizzle-orm";
 import { signupApiSchema } from "@/schemas/auth";
 import { hashPassword, generateToken, setAuthCookie } from "@/lib/auth";
-
-// Default categories to create for new users
-const DEFAULT_CATEGORIES = [
-  // Income
-  { name: "Salary", type: "income" as const, color: "#10b981", icon: "briefcase" },
-  { name: "Bonus", type: "income" as const, color: "#10b981", icon: "gift" },
-  { name: "Investment Returns", type: "income" as const, color: "#10b981", icon: "trending-up" },
-  { name: "Other Income", type: "income" as const, color: "#10b981", icon: "plus-circle" },
-  // Needs
-  { name: "Rent/Home Loan", type: "needs" as const, color: "#3b82f6", icon: "home" },
-  { name: "Groceries", type: "needs" as const, color: "#3b82f6", icon: "shopping-cart" },
-  { name: "Utilities", type: "needs" as const, color: "#3b82f6", icon: "zap" },
-  { name: "Transportation", type: "needs" as const, color: "#3b82f6", icon: "car" },
-  { name: "Insurance", type: "needs" as const, color: "#3b82f6", icon: "shield" },
-  { name: "Healthcare", type: "needs" as const, color: "#3b82f6", icon: "heart" },
-  { name: "EMI", type: "needs" as const, color: "#3b82f6", icon: "credit-card" },
-  // Wants
-  { name: "Entertainment", type: "wants" as const, color: "#f59e0b", icon: "film" },
-  { name: "Dining Out", type: "wants" as const, color: "#f59e0b", icon: "utensils" },
-  { name: "Shopping", type: "wants" as const, color: "#f59e0b", icon: "shopping-bag" },
-  { name: "Subscriptions", type: "wants" as const, color: "#f59e0b", icon: "tv" },
-  { name: "Other Expenses", type: "wants" as const, color: "#f59e0b", icon: "more-horizontal" },
-  // Savings
-  { name: "PPF", type: "savings" as const, color: "#8b5cf6", icon: "piggy-bank" },
-  { name: "NPS", type: "savings" as const, color: "#8b5cf6", icon: "landmark" },
-  { name: "Mutual Funds", type: "savings" as const, color: "#8b5cf6", icon: "bar-chart" },
-  { name: "Stocks", type: "savings" as const, color: "#8b5cf6", icon: "trending-up" },
-  { name: "Fixed Deposit", type: "savings" as const, color: "#8b5cf6", icon: "lock" },
-  { name: "Emergency Fund", type: "savings" as const, color: "#8b5cf6", icon: "life-buoy" },
-  { name: "Gold", type: "savings" as const, color: "#8b5cf6", icon: "circle" },
-];
+import { seedCategoriesForUser } from "@/db/seed-categories";
 
 // Default account to create for new users
 const DEFAULT_ACCOUNT = {
@@ -85,18 +55,8 @@ export async function POST(request: Request) {
       })
       .returning();
 
-    // Create default categories for the user
-    await db.insert(categories).values(
-      DEFAULT_CATEGORIES.map((cat, index) => ({
-        userId: newUser.id,
-        name: cat.name,
-        type: cat.type,
-        color: cat.color,
-        icon: cat.icon,
-        sortOrder: index,
-        isSystem: true,
-      }))
-    );
+    // Create default categories and sub-categories for the user
+    await seedCategoriesForUser(newUser.id);
 
     // Create default account for the user
     await db.insert(accounts).values({

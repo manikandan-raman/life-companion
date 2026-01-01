@@ -107,10 +107,10 @@ export function BillCard({
   const status = statusConfig[bill.status];
   const StatusIcon = status.icon;
   
-  // Use category icon/color, fallback to receipt icon
+  // Use category icon, fallback to receipt icon
   const categoryIcon = bill.category?.icon || "receipt";
-  const categoryColor = bill.category?.color || "#6366f1";
-  const BillIcon = iconMap[categoryIcon] || Receipt;
+  const categoryColor = "#6366f1"; // Default bill color
+  const BillIcon = iconMap[categoryIcon.toLowerCase()] || iconMap[categoryIcon] || Receipt;
 
   const getDueText = () => {
     const day = bill.dueDay;

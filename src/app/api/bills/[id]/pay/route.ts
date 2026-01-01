@@ -25,6 +25,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       where: and(eq(recurringBills.id, id), eq(recurringBills.userId, userId)),
       with: {
         category: true,
+        subCategory: true,
       },
     });
 
@@ -81,10 +82,12 @@ export async function POST(request: Request, { params }: RouteParams) {
       .insert(transactions)
       .values({
         userId,
+        type: data.type,
         amount: String(data.paidAmount),
         description: `${bill.name} - ${month}/${year}`,
         notes: `Bill payment for ${bill.name}`,
         categoryId: bill.categoryId,
+        subCategoryId: bill.subCategoryId,
         accountId: data.accountId,
         transactionDate: data.paidDate.toISOString().split("T")[0],
       })
@@ -131,6 +134,7 @@ export async function POST(request: Request, { params }: RouteParams) {
         transaction: {
           with: {
             category: true,
+            subCategory: true,
           },
         },
       },
@@ -151,4 +155,3 @@ export async function POST(request: Request, { params }: RouteParams) {
     );
   }
 }
-

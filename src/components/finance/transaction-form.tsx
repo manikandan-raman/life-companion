@@ -23,14 +23,17 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import type { CategoryType } from "@/types";
+import type { TransactionType } from "@/types";
+import { TRANSACTION_TYPE_LABELS } from "@/types";
 
 // Define form values type explicitly
 interface FormValues {
+  type: TransactionType;
   amount: number;
-  description: string;
+  description?: string | null;
   notes?: string | null;
   categoryId: string;
+  subCategoryId?: string | null;
   accountId?: string | null;
   transactionDate: Date;
   tagIds?: string[];
@@ -43,12 +46,7 @@ interface TransactionFormProps {
   submitLabel?: string;
 }
 
-const categoryTypeLabels: Record<CategoryType, string> = {
-  income: "Income",
-  needs: "Needs",
-  wants: "Wants",
-  savings: "Savings",
-};
+const TRANSACTION_TYPES: TransactionType[] = ["income", "needs", "wants", "savings", "investments"];
 
 export function TransactionForm({
   defaultValues,
@@ -68,10 +66,12 @@ export function TransactionForm({
   } = useForm<FormValues>({
     resolver: zodResolver(transactionSchema) as never,
     defaultValues: {
-      amount: defaultValues?.amount || 0,
+      type: defaultValues?.type || "needs",
+      amount: defaultValues?.amount ?? undefined,
       description: defaultValues?.description || "",
       notes: defaultValues?.notes || "",
       categoryId: defaultValues?.categoryId || "",
+      subCategoryId: defaultValues?.subCategoryId || "",
       accountId: defaultValues?.accountId || "",
       transactionDate: defaultValues?.transactionDate || new Date(),
       tagIds: defaultValues?.tagIds || [],
@@ -80,17 +80,18 @@ export function TransactionForm({
 
   const selectedDate = watch("transactionDate");
   const selectedCategoryId = watch("categoryId");
+  const selectedSubCategoryId = watch("subCategoryId");
+  const selectedType = watch("type");
 
-  // Group categories by type
-  const groupedCategories = categories?.reduce(
-    (acc, cat) => {
-      const type = cat.type as CategoryType;
-      if (!acc[type]) acc[type] = [];
-      acc[type].push(cat);
-      return acc;
-    },
-    {} as Record<CategoryType, typeof categories>
-  );
+  // Get sub-categories for the selected category
+  const selectedCategory = categories?.find((c) => c.id === selectedCategoryId);
+  const subCategoriesForCategory = selectedCategory?.subCategories || [];
+
+  // Reset sub-category when category changes
+  const handleCategoryChange = (categoryId: string) => {
+    setValue("categoryId", categoryId);
+    setValue("subCategoryId", "");
+  };
 
   const handleFormSubmit: SubmitHandler<FormValues> = async (data) => {
     await onSubmit(data);
@@ -98,6 +99,56 @@ export function TransactionForm({
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+      {/* Type & Account - Side by Side */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Transaction Type */}
+        <div className="space-y-2 min-w-0">
+          <Label>Type</Label>
+          <Select
+            value={selectedType}
+            onValueChange={(value) => setValue("type", value as TransactionType)}
+          >
+            <SelectTrigger className={cn("w-full", errors.type && "border-destructive")}>
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              {TRANSACTION_TYPES.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {TRANSACTION_TYPE_LABELS[type]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.type && (
+            <p className="text-sm text-destructive">{errors.type.message}</p>
+          )}
+        </div>
+
+        {/* Account */}
+        <div className="space-y-2 min-w-0">
+          <Label>Account</Label>
+          <Select
+            value={watch("accountId") || "none"}
+            onValueChange={(value) =>
+              setValue("accountId", value === "none" ? null : value)
+            }
+            disabled={accountsLoading}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select account" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">No account</SelectItem>
+              {accounts?.map((account) => (
+                <SelectItem key={account.id} value={account.id}>
+                  {account.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       {/* Amount */}
       <div className="space-y-2">
         <Label htmlFor="amount">Amount</Label>
@@ -119,74 +170,55 @@ export function TransactionForm({
         )}
       </div>
 
-      {/* Description */}
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Input
-          id="description"
-          placeholder="What was this for?"
-          className={cn(errors.description && "border-destructive")}
-          {...register("description")}
-        />
-        {errors.description && (
-          <p className="text-sm text-destructive">{errors.description.message}</p>
-        )}
-      </div>
-
-      {/* Category */}
-      <div className="space-y-2">
-        <Label>Category</Label>
-        <Select
-          value={selectedCategoryId}
-          onValueChange={(value) => setValue("categoryId", value)}
-          disabled={categoriesLoading}
-        >
-          <SelectTrigger className={cn(errors.categoryId && "border-destructive")}>
-            <SelectValue placeholder="Select a category" />
-          </SelectTrigger>
-          <SelectContent>
-            {groupedCategories &&
-              (Object.keys(groupedCategories) as CategoryType[]).map((type) => (
-                <div key={type}>
-                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                    {categoryTypeLabels[type]}
-                  </div>
-                  {groupedCategories[type]?.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </div>
+      {/* Category & Sub-category - Side by Side */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Category */}
+        <div className="space-y-2 min-w-0">
+          <Label>Category</Label>
+          <Select
+            value={selectedCategoryId}
+            onValueChange={handleCategoryChange}
+            disabled={categoriesLoading}
+          >
+            <SelectTrigger className={cn("w-full", errors.categoryId && "border-destructive")}>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories?.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
               ))}
-          </SelectContent>
-        </Select>
-        {errors.categoryId && (
-          <p className="text-sm text-destructive">{errors.categoryId.message}</p>
-        )}
-      </div>
+            </SelectContent>
+          </Select>
+          {errors.categoryId && (
+            <p className="text-sm text-destructive">{errors.categoryId.message}</p>
+          )}
+        </div>
 
-      {/* Account */}
-      <div className="space-y-2">
-        <Label>Account (Optional)</Label>
-        <Select
-          value={watch("accountId") || "none"}
-          onValueChange={(value) =>
-            setValue("accountId", value === "none" ? undefined : value)
-          }
-          disabled={accountsLoading}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select an account" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">No account</SelectItem>
-            {accounts?.map((account) => (
-              <SelectItem key={account.id} value={account.id}>
-                {account.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* Sub-category */}
+        <div className="space-y-2 min-w-0">
+          <Label>Sub-category</Label>
+          <Select
+            value={selectedSubCategoryId || "none"}
+            onValueChange={(value) =>
+              setValue("subCategoryId", value === "none" ? null : value)
+            }
+            disabled={!selectedCategoryId || subCategoriesForCategory.length === 0}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={selectedCategoryId ? "Select" : "Select category first"} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">None</SelectItem>
+              {subCategoriesForCategory.map((subCategory) => (
+                <SelectItem key={subCategory.id} value={subCategory.id}>
+                  {subCategory.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Date */}
@@ -220,6 +252,16 @@ export function TransactionForm({
             {errors.transactionDate.message}
           </p>
         )}
+      </div>
+
+      {/* Description */}
+      <div className="space-y-2">
+        <Label htmlFor="description">Description (Optional)</Label>
+        <Input
+          id="description"
+          placeholder="What was this for?"
+          {...register("description")}
+        />
       </div>
 
       {/* Notes */}

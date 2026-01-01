@@ -89,8 +89,8 @@ export default function LiabilitiesPage() {
     defaultValues: {
       name: "",
       type: "personal_loan",
-      principalAmount: 0,
-      outstandingBalance: 0,
+      principalAmount: undefined,
+      outstandingBalance: undefined,
       interestRate: 10,
       color: "#ef4444",
       startDate: new Date(),

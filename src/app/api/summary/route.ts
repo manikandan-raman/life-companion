@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { db, transactions, categories } from "@/db";
-import { eq, and, gte, lte, sql } from "drizzle-orm";
+import { db, transactions } from "@/db";
+import { eq, and, gte, lte } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
 import { z } from "zod";
 
@@ -17,7 +17,6 @@ export interface SpendingByType {
 export interface SpendingByCategory {
   name: string;
   amount: number;
-  color: string;
   type: string;
 }
 
@@ -28,19 +27,24 @@ export interface SummaryResponse {
   needs: { current: number; goal: number };
   wants: { current: number; goal: number };
   savings: { current: number; goal: number };
+  investments: { current: number; goal: number };
   spendingByType: SpendingByType[];
   spendingByCategory: SpendingByCategory[];
   recentTransactions: Array<{
     id: string;
+    type: string;
     amount: string;
-    description: string;
+    description: string | null;
     notes: string | null;
     transactionDate: string;
     category: {
       id: string;
       name: string;
-      type: string;
-      color: string | null;
+      icon: string | null;
+    } | null;
+    subCategory: {
+      id: string;
+      name: string;
       icon: string | null;
     } | null;
     account: {
@@ -76,6 +80,7 @@ export async function GET(request: Request) {
       ),
       with: {
         category: true,
+        subCategory: true,
         account: true,
       },
       orderBy: (transactions, { desc }) => [
@@ -84,16 +89,17 @@ export async function GET(request: Request) {
       ],
     });
 
-    // Calculate summary totals
+    // Calculate summary totals using transaction type
     let totalIncome = 0;
     let totalNeeds = 0;
     let totalWants = 0;
     let totalSavings = 0;
-    const categoryTotals: Record<string, { amount: number; color: string; type: string }> = {};
+    let totalInvestments = 0;
+    const categoryTotals: Record<string, { amount: number; type: string }> = {};
 
     transactionList.forEach((t) => {
       const amount = parseFloat(String(t.amount));
-      const type = t.category?.type;
+      const type = t.type; // Use transaction type, not category type
       const categoryName = t.category?.name || "Uncategorized";
 
       switch (type) {
@@ -109,6 +115,9 @@ export async function GET(request: Request) {
         case "savings":
           totalSavings += amount;
           break;
+        case "investments":
+          totalInvestments += amount;
+          break;
       }
 
       // Track spending by category (exclude income)
@@ -116,7 +125,6 @@ export async function GET(request: Request) {
         if (!categoryTotals[categoryName]) {
           categoryTotals[categoryName] = {
             amount: 0,
-            color: t.category?.color || "#6b7280",
             type: type,
           };
         }
@@ -124,26 +132,27 @@ export async function GET(request: Request) {
       }
     });
 
-    const totalExpense = totalNeeds + totalWants + totalSavings;
+    const totalExpense = totalNeeds + totalWants + totalSavings + totalInvestments;
     const balance = totalIncome - totalExpense;
 
-    // Budget goals based on 50/30/20 rule
+    // Budget goals based on 50/30/20 rule (with investments included in savings/investments)
     const needsGoal = totalIncome * 0.5;
     const wantsGoal = totalIncome * 0.3;
-    const savingsGoal = totalIncome * 0.2;
+    const savingsGoal = totalIncome * 0.1;
+    const investmentsGoal = totalIncome * 0.1;
 
     // Prepare spending by type data
     const spendingByType: SpendingByType[] = [];
     if (totalNeeds > 0) spendingByType.push({ name: "Needs", amount: Math.round(totalNeeds * 100) / 100 });
     if (totalWants > 0) spendingByType.push({ name: "Wants", amount: Math.round(totalWants * 100) / 100 });
     if (totalSavings > 0) spendingByType.push({ name: "Savings", amount: Math.round(totalSavings * 100) / 100 });
+    if (totalInvestments > 0) spendingByType.push({ name: "Investments", amount: Math.round(totalInvestments * 100) / 100 });
 
     // Prepare spending by category data
     const spendingByCategory: SpendingByCategory[] = Object.entries(categoryTotals)
       .map(([name, data]) => ({
         name,
         amount: Math.round(data.amount * 100) / 100,
-        color: data.color,
         type: data.type,
       }))
       .sort((a, b) => b.amount - a.amount);
@@ -151,6 +160,7 @@ export async function GET(request: Request) {
     // Get recent transactions (top 5, already sorted)
     const recentTransactions = transactionList.slice(0, 5).map((t) => ({
       id: t.id,
+      type: t.type,
       amount: t.amount,
       description: t.description,
       notes: t.notes,
@@ -159,9 +169,14 @@ export async function GET(request: Request) {
         ? {
             id: t.category.id,
             name: t.category.name,
-            type: t.category.type,
-            color: t.category.color,
             icon: t.category.icon,
+          }
+        : null,
+      subCategory: t.subCategory
+        ? {
+            id: t.subCategory.id,
+            name: t.subCategory.name,
+            icon: t.subCategory.icon,
           }
         : null,
       account: t.account
@@ -181,6 +196,7 @@ export async function GET(request: Request) {
       needs: { current: Math.round(totalNeeds * 100) / 100, goal: Math.round(needsGoal * 100) / 100 },
       wants: { current: Math.round(totalWants * 100) / 100, goal: Math.round(wantsGoal * 100) / 100 },
       savings: { current: Math.round(totalSavings * 100) / 100, goal: Math.round(savingsGoal * 100) / 100 },
+      investments: { current: Math.round(totalInvestments * 100) / 100, goal: Math.round(investmentsGoal * 100) / 100 },
       spendingByType,
       spendingByCategory,
       recentTransactions,
@@ -204,4 +220,3 @@ export async function GET(request: Request) {
     );
   }
 }
-

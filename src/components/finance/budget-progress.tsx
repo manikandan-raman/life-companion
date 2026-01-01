@@ -2,17 +2,17 @@
 
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
-import type { CategoryType } from "@/types";
+import type { TransactionType } from "@/types";
 
 interface BudgetProgressProps {
-  type: CategoryType;
+  type: TransactionType;
   label: string;
   current: number;
   goal: number;
   className?: string;
 }
 
-const typeColors: Record<CategoryType, { bg: string; progress: string; text: string }> = {
+const typeColors: Record<TransactionType, { bg: string; progress: string; text: string }> = {
   income: {
     bg: "bg-income/10",
     progress: "[&>div]:bg-income",
@@ -33,6 +33,11 @@ const typeColors: Record<CategoryType, { bg: string; progress: string; text: str
     progress: "[&>div]:bg-savings",
     text: "text-savings",
   },
+  investments: {
+    bg: "bg-savings/10",
+    progress: "[&>div]:bg-savings",
+    text: "text-savings",
+  },
 };
 
 export function BudgetProgress({
@@ -43,7 +48,7 @@ export function BudgetProgress({
   className,
 }: BudgetProgressProps) {
   const percentage = goal > 0 ? Math.min((current / goal) * 100, 100) : 0;
-  const isOverBudget = current > goal && type !== "income" && type !== "savings";
+  const isOverBudget = current > goal && type !== "income" && type !== "savings" && type !== "investments";
   const colors = typeColors[type];
 
   const formatAmount = (value: number) => {
@@ -60,7 +65,7 @@ export function BudgetProgress({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className={cn("w-2 h-2 rounded-full", colors.bg.replace("/10", ""))} 
-               style={{ backgroundColor: `var(--${type})` }} />
+               style={{ backgroundColor: `var(--${type === "investments" ? "savings" : type})` }} />
           <span className="text-sm font-medium">{label}</span>
         </div>
         <div className="flex items-center gap-2 text-sm">
@@ -93,4 +98,3 @@ export function BudgetProgress({
     </div>
   );
 }
-

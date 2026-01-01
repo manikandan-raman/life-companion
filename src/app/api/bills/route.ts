@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db, recurringBills, categories, accounts, billPayments } from "@/db";
+import { db, recurringBills, categories, accounts, billPayments, subCategories } from "@/db";
 import { eq, and, desc } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
 import { recurringBillSchema, billFilterSchema } from "@/schemas/bill";
@@ -49,6 +49,7 @@ export async function GET(request: Request) {
       month: searchParams.get("month") || today.getMonth() + 1,
       year: searchParams.get("year") || today.getFullYear(),
       categoryId: searchParams.get("categoryId") || undefined,
+      subCategoryId: searchParams.get("subCategoryId") || undefined,
       isActive: searchParams.get("isActive") || undefined,
       status: searchParams.get("status") || undefined,
     });
@@ -62,6 +63,9 @@ export async function GET(request: Request) {
     if (params.categoryId) {
       conditions.push(eq(recurringBills.categoryId, params.categoryId));
     }
+    if (params.subCategoryId) {
+      conditions.push(eq(recurringBills.subCategoryId, params.subCategoryId));
+    }
     if (params.isActive !== undefined) {
       conditions.push(eq(recurringBills.isActive, params.isActive));
     }
@@ -71,6 +75,7 @@ export async function GET(request: Request) {
       where: and(...conditions),
       with: {
         category: true,
+        subCategory: true,
         account: true,
       },
       orderBy: [desc(recurringBills.createdAt)],
@@ -185,6 +190,23 @@ export async function POST(request: Request) {
       }
     }
 
+    // Verify sub-category belongs to user and parent category (if provided)
+    if (data.subCategoryId) {
+      const subCategory = await db.query.subCategories.findFirst({
+        where: and(
+          eq(subCategories.id, data.subCategoryId),
+          eq(subCategories.userId, userId),
+          data.categoryId ? eq(subCategories.categoryId, data.categoryId) : undefined
+        ),
+      });
+      if (!subCategory) {
+        return NextResponse.json(
+          { error: "Invalid sub-category" },
+          { status: 400 }
+        );
+      }
+    }
+
     // Verify account belongs to user (if provided)
     if (data.accountId) {
       const account = await db.query.accounts.findFirst({
@@ -209,6 +231,7 @@ export async function POST(request: Request) {
         name: data.name,
         amount: String(data.amount),
         categoryId: data.categoryId || null,
+        subCategoryId: data.subCategoryId || null,
         accountId: data.accountId || null,
         dueDay: data.dueDay,
         notes: data.notes || null,
@@ -221,6 +244,7 @@ export async function POST(request: Request) {
       where: eq(recurringBills.id, newBill.id),
       with: {
         category: true,
+        subCategory: true,
         account: true,
       },
     });

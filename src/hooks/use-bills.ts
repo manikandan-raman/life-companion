@@ -6,6 +6,7 @@ import type {
   RecurringBill,
   BillPayment,
   Category,
+  SubCategory,
   Account,
   BillStatus,
 } from "@/types";
@@ -14,6 +15,7 @@ import type {
 
 export interface RecurringBillWithRelations extends RecurringBill {
   category: Category | null;
+  subCategory: SubCategory | null;
   account: Account | null;
   payment: BillPaymentWithAccount | null;
   status: BillStatus;
@@ -34,6 +36,7 @@ export interface RecurringBillFormValues {
 }
 
 export interface BillPaymentFormValues {
+  type: "needs" | "wants" | "savings" | "investments";
   paidDate: Date;
   paidAmount: number;
   accountId: string;

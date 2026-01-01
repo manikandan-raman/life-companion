@@ -2,26 +2,21 @@
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import type { CategoryType } from "@/types";
+import type { TransactionType } from "@/types";
+import { TRANSACTION_TYPE_LABELS } from "@/types";
 
 interface CategoryBadgeProps {
-  type: CategoryType;
+  type: TransactionType;
   name?: string;
   className?: string;
 }
 
-const typeStyles: Record<CategoryType, string> = {
+const typeStyles: Record<TransactionType, string> = {
   income: "bg-income/15 text-income border-transparent hover:bg-income/25",
   needs: "bg-needs/15 text-needs border-transparent hover:bg-needs/25",
   wants: "bg-wants/15 text-wants border-transparent hover:bg-wants/25",
   savings: "bg-savings/15 text-savings border-transparent hover:bg-savings/25",
-};
-
-const typeLabels: Record<CategoryType, string> = {
-  income: "Income",
-  needs: "Needs",
-  wants: "Wants",
-  savings: "Savings",
+  investments: "bg-savings/15 text-savings border-transparent hover:bg-savings/25",
 };
 
 export function CategoryBadge({ type, name, className }: CategoryBadgeProps) {
@@ -30,8 +25,7 @@ export function CategoryBadge({ type, name, className }: CategoryBadgeProps) {
       variant="outline"
       className={cn("font-medium", typeStyles[type], className)}
     >
-      {name || typeLabels[type]}
+      {name || TRANSACTION_TYPE_LABELS[type]}
     </Badge>
   );
 }
-

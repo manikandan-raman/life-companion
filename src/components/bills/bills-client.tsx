@@ -117,15 +117,7 @@ export function BillsClient() {
 
   return (
     <div className="min-h-screen">
-      <Header
-        title="Bills"
-        action={
-          <Button onClick={() => setIsAddDialogOpen(true)} size="sm">
-            <Plus className="h-4 w-4 mr-1" />
-            Add Bill
-          </Button>
-        }
-      />
+      <Header title="Bills" />
 
       <div className="px-4 py-6 md:px-6 space-y-6 max-w-4xl mx-auto">
         {/* Filters */}
@@ -252,6 +244,15 @@ export function BillsClient() {
             ))
           )}
         </div>
+
+        {/* Floating Action Button - Mobile */}
+        <Button
+          size="lg"
+          onClick={() => setIsAddDialogOpen(true)}
+          className="md:hidden fixed right-4 bottom-24 h-14 w-14 rounded-full shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all hover:scale-105"
+        >
+          <Plus className="h-6 w-6" />
+        </Button>
       </div>
 
       {/* Add Bill Dialog */}

@@ -108,8 +108,8 @@ export default function AssetsPage() {
       name: "",
       type: "investment",
       subtype: "mutual_fund",
-      currentValue: 0,
-      purchaseValue: 0,
+      currentValue: undefined,
+      purchaseValue: undefined,
       color: "#10b981",
     },
   });

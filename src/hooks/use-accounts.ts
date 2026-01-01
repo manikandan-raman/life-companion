@@ -2,9 +2,9 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
-import type { Account, Category, AccountFromView } from "@/types";
+import type { Account, AccountFromView, CategoryWithSubCategories, SubCategory } from "@/types";
 import type { AccountFormData } from "@/schemas/account";
-import type { CategoryFormData } from "@/schemas/category";
+import type { CategoryFormData, SubCategoryFormData } from "@/schemas/category";
 
 // Accounts - returns accounts with calculated currentBalance from the view
 export function useAccounts() {
@@ -65,12 +65,12 @@ export function useDeleteAccount() {
   });
 }
 
-// Categories
+// Categories - returns categories with nested sub-categories
 export function useCategories() {
   return useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const response = await api.get<{ data: Category[] }>("/api/categories");
+      const response = await api.get<{ data: CategoryWithSubCategories[] }>("/api/categories");
       return response.data;
     },
   });
@@ -81,7 +81,7 @@ export function useCreateCategory() {
 
   return useMutation({
     mutationFn: async (data: CategoryFormData) => {
-      return api.post<{ data: Category; message: string }>(
+      return api.post<{ data: CategoryWithSubCategories; message: string }>(
         "/api/categories",
         data
       );
@@ -103,7 +103,7 @@ export function useUpdateCategory() {
       id: string;
       data: Partial<CategoryFormData>;
     }) => {
-      return api.patch<{ data: Category; message: string }>(
+      return api.patch<{ data: CategoryWithSubCategories; message: string }>(
         `/api/categories/${id}`,
         data
       );
@@ -127,3 +127,71 @@ export function useDeleteCategory() {
   });
 }
 
+// Sub-categories
+export function useSubCategories(categoryId?: string) {
+  return useQuery({
+    queryKey: ["sub-categories", categoryId],
+    queryFn: async () => {
+      const url = categoryId 
+        ? `/api/sub-categories?categoryId=${categoryId}`
+        : "/api/sub-categories";
+      const response = await api.get<{ data: SubCategory[] }>(url);
+      return response.data;
+    },
+    enabled: categoryId !== undefined,
+  });
+}
+
+export function useCreateSubCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: SubCategoryFormData) => {
+      return api.post<{ data: SubCategory; message: string }>(
+        "/api/sub-categories",
+        data
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["sub-categories"] });
+    },
+  });
+}
+
+export function useUpdateSubCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Partial<SubCategoryFormData>;
+    }) => {
+      return api.patch<{ data: SubCategory; message: string }>(
+        `/api/sub-categories/${id}`,
+        data
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["sub-categories"] });
+    },
+  });
+}
+
+export function useDeleteSubCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      return api.delete<{ message: string }>(`/api/sub-categories/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["sub-categories"] });
+    },
+  });
+}
