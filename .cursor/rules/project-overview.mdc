@@ -1,0 +1,56 @@
+---
+description: Project overview and tech stack for mk_digi personal finance tracker
+globs: 
+alwaysApply: true
+---
+
+# mk_digi - Personal Finance Tracker
+
+## Project Overview
+
+This is a personal finance management application for tracking budgets (50/30/20 rule), transactions, accounts, assets, liabilities, and net worth. The app uses Indian Rupee (₹) as the currency.
+
+## Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript (strict mode) |
+| Database | Drizzle ORM with PostgreSQL |
+| UI | shadcn/ui (new-york style), Tailwind CSS v4, Radix UI |
+| State | TanStack React Query |
+| Forms | React Hook Form with Zod validation |
+| Auth | JWT-based with HTTP-only cookies, bcrypt |
+| PWA | Serwist for service worker |
+| Charts | Tremor for data visualization |
+
+## Directory Structure
+
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── (auth)/            # Auth route group (login, signup)
+│   ├── (dashboard)/       # Protected dashboard routes
+│   ├── api/               # API route handlers
+│   └── globals.css        # Global styles with Tailwind
+├── components/
+│   ├── ui/                # shadcn/ui components (do not edit)
+│   ├── layout/            # Layout components
+│   ├── finance/           # Finance-specific components
+│   └── common/            # Shared components
+├── db/
+│   ├── index.ts           # Database connection
+│   └── schema.ts          # Drizzle schema definitions
+├── hooks/                 # Custom React hooks (use-*.ts)
+├── lib/                   # Utility functions and clients
+├── schemas/               # Zod validation schemas
+├── types/                 # TypeScript type definitions
+└── middleware.ts          # Auth middleware
+```
+
+## Category Types (50/30/20 Rule)
+
+- `income` - All income sources
+- `needs` - Essential expenses (50% target)
+- `wants` - Non-essential expenses (30% target)
+- `savings` - Savings and investments (20% target)

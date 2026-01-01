@@ -1,0 +1,49 @@
+---
+description: Post-task workflow and build verification
+globs: 
+alwaysApply: true
+---
+
+# Post-Task Workflow
+
+## Build Verification
+
+**IMPORTANT**: After completing any coding task, always run:
+
+```bash
+yarn build
+```
+
+This ensures:
+- No TypeScript errors
+- No build-time errors
+- All imports are valid
+- The application compiles successfully
+
+**Do not consider a task complete until `yarn build` passes successfully.**
+
+## Development Commands
+
+```bash
+yarn dev          # Start development server
+yarn build        # Build for production
+yarn start        # Start production server
+yarn lint         # Run ESLint
+```
+
+## Database Commands
+
+```bash
+yarn db:generate  # Generate Drizzle migrations
+yarn db:migrate   # Run migrations
+yarn db:push      # Push schema changes (dev only)
+yarn db:studio    # Open Drizzle Studio GUI
+```
+
+## Common Checks Before Completing Work
+
+1. Run `yarn build` - must pass with no errors
+2. Check for TypeScript errors in the editor
+3. Verify imports are using `@/` alias correctly
+4. Ensure "use client" directive is added where needed
+5. Confirm API routes use `requireAuth()` for protected endpoints

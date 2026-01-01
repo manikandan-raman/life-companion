@@ -1,0 +1,84 @@
+---
+description: Custom React hooks with TanStack Query
+globs: src/hooks/**/*.ts
+---
+
+# Custom Hooks Pattern
+
+Create hooks in `src/hooks/` following the `use-*.ts` naming convention.
+
+## Query Hooks
+
+```typescript
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api-client";
+
+interface UseTransactionsOptions {
+  startDate?: Date;
+  endDate?: Date;
+  categoryId?: string;
+}
+
+export function useTransactions(options: UseTransactionsOptions = {}) {
+  return useQuery({
+    queryKey: ["transactions", options],
+    queryFn: async () => {
+      const params: Record<string, string> = {};
+      if (options.startDate) params.startDate = options.startDate.toISOString();
+      if (options.endDate) params.endDate = options.endDate.toISOString();
+      if (options.categoryId) params.categoryId = options.categoryId;
+      
+      return api.get("/api/transactions", { params });
+    },
+  });
+}
+```
+
+## Mutation Hooks
+
+```typescript
+"use client";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/api-client";
+
+export function useCreateTransaction() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (data: TransactionFormValues) => 
+      api.post("/api/transactions", data),
+    onSuccess: () => {
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["summary"] });
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
+    },
+  });
+}
+```
+
+## API Client Usage
+
+Use the `api` client from `@/lib/api-client`:
+
+```typescript
+import { api, ApiError } from "@/lib/api-client";
+
+// GET request
+const data = await api.get<ResponseType>("/api/endpoint", { params });
+
+// POST request
+const result = await api.post<ResponseType>("/api/endpoint", body);
+
+// Error handling
+try {
+  await api.post("/api/endpoint", data);
+} catch (error) {
+  if (error instanceof ApiError) {
+    toast.error(error.message);
+  }
+}
+```

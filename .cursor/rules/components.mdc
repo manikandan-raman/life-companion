@@ -1,0 +1,73 @@
+---
+description: React component patterns and conventions
+globs: src/components/**/*.tsx, src/app/**/*.tsx
+---
+
+# Component Patterns
+
+## Import Conventions
+
+Always use the `@/` path alias which points to `src/`:
+
+```typescript
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import type { TransactionWithRelations } from "@/types";
+```
+
+## Server Components (Default)
+
+Prefer Server Components unless client interactivity is required:
+
+```typescript
+// src/app/(dashboard)/page.tsx
+import { db } from "@/db";
+
+export default async function DashboardPage() {
+  const data = await db.query.transactions.findMany();
+  return <div>{/* render data */}</div>;
+}
+```
+
+## Client Components
+
+Add `"use client"` directive at the top when using:
+- React hooks (useState, useEffect, etc.)
+- Event handlers (onClick, onChange, etc.)
+- Browser APIs
+- TanStack Query hooks
+
+```typescript
+"use client";
+
+import { useState } from "react";
+import { useTransactions } from "@/hooks/use-transactions";
+
+export function TransactionList() {
+  const { data, isLoading } = useTransactions();
+  // ...
+}
+```
+
+## Styling with Tailwind
+
+- Use the `cn()` utility from `@/lib/utils` for conditional classes
+- Follow mobile-first responsive design (`md:`, `lg:` breakpoints)
+- Use CSS variables for theming (defined in globals.css)
+
+```typescript
+import { cn } from "@/lib/utils";
+
+<div className={cn(
+  "p-4 rounded-lg",
+  isActive && "bg-primary text-primary-foreground",
+  className
+)} />
+```
+
+## shadcn/ui Components
+
+- Components are in `src/components/ui/`
+- Do not modify shadcn components directly
+- Extend via className or wrapper components
+- Use component variants (e.g., `variant="destructive"`, `size="sm"`)

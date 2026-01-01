@@ -1,0 +1,92 @@
+---
+description: API route patterns and authentication
+globs: src/app/api/**/*.ts
+---
+
+# API Route Patterns
+
+## Authentication
+
+Always use `requireAuth()` to protect API routes:
+
+```typescript
+import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/auth";
+import { db } from "@/db";
+import { eq } from "drizzle-orm";
+
+export async function GET() {
+  try {
+    const { userId } = await requireAuth();
+    
+    const data = await db.query.transactions.findMany({
+      where: eq(transactions.userId, userId),
+    });
+    
+    return NextResponse.json({ data });
+  } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
+}
+```
+
+## Request Validation
+
+Use Zod schemas for input validation:
+
+```typescript
+import { transactionSchema } from "@/schemas/transaction";
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  const result = transactionSchema.safeParse(body);
+  
+  if (!result.success) {
+    return NextResponse.json(
+      { error: result.error.issues[0].message },
+      { status: 400 }
+    );
+  }
+  
+  const data = result.data;
+  // proceed with validated data
+}
+```
+
+## Error Handling
+
+```typescript
+try {
+  // operation
+} catch (error) {
+  console.error("Operation error:", error);
+  if (error instanceof Error && error.message === "Unauthorized") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return NextResponse.json({ error: "Operation failed" }, { status: 500 });
+}
+```
+
+## Response Format
+
+Use consistent response structures:
+
+```typescript
+// Success with data
+return NextResponse.json({ data, message: "Created successfully" });
+
+// Paginated response
+return NextResponse.json({
+  data: items,
+  total: count,
+  page: params.page,
+  pageSize: params.pageSize,
+  totalPages: Math.ceil(count / params.pageSize),
+});
+
+// Error response
+return NextResponse.json({ error: "Error message" }, { status: 400 });
+```

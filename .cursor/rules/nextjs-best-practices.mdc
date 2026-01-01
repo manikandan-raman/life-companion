@@ -1,0 +1,101 @@
+---
+description: Next.js App Router best practices
+globs: src/app/**/*.tsx
+---
+
+# Next.js Best Practices
+
+## Metadata for SEO
+
+Add metadata to pages:
+
+```typescript
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Transactions | mk_digi",
+  description: "View and manage your transactions",
+};
+
+export default function TransactionsPage() {
+  // ...
+}
+```
+
+## Loading States
+
+Create `loading.tsx` for route loading UI:
+
+```typescript
+import { Skeleton } from "@/components/ui/skeleton";
+
+export default function Loading() {
+  return (
+    <div className="p-6 space-y-4">
+      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-64 w-full" />
+    </div>
+  );
+}
+```
+
+## Error Boundaries
+
+Create `error.tsx` for error handling:
+
+```typescript
+"use client";
+
+import { Button } from "@/components/ui/button";
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error;
+  reset: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+      <h2 className="text-xl font-semibold">Something went wrong!</h2>
+      <p className="text-muted-foreground">{error.message}</p>
+      <Button onClick={reset}>Try again</Button>
+    </div>
+  );
+}
+```
+
+## Route Groups
+
+Use route groups for layouts:
+
+- `(auth)` - Login/signup pages with minimal layout
+- `(dashboard)` - Protected pages with full navigation
+
+## Data Fetching
+
+Prefer server-side data fetching when possible:
+
+```typescript
+// Server Component (recommended)
+export default async function Page() {
+  const data = await db.query.transactions.findMany();
+  return <TransactionList data={data} />;
+}
+
+// Client-side with React Query (for dynamic data)
+"use client";
+export function TransactionList() {
+  const { data, isLoading } = useTransactions();
+  // ...
+}
+```
+
+## Route Handlers
+
+File convention: `src/app/api/[resource]/route.ts`
+
+```typescript
+// GET, POST in route.ts
+// GET, PATCH, DELETE in [id]/route.ts
+```
