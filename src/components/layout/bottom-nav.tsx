@@ -6,8 +6,8 @@ import { useMemo } from "react";
 import {
   LayoutDashboard,
   ArrowUpDown,
+  Receipt,
   Wallet,
-  PieChart,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -24,9 +24,9 @@ const navItems = [
     icon: ArrowUpDown,
   },
   {
-    href: "/networth",
-    label: "Net Worth",
-    icon: PieChart,
+    href: "/bills",
+    label: "Bills",
+    icon: Receipt,
   },
   {
     href: "/accounts",

@@ -15,6 +15,8 @@ import type {
   AssetType,
   AssetSubtype,
   LiabilityType,
+  RecurringBill,
+  BillPayment,
 } from "@/db/schema";
 
 // Re-export database types
@@ -35,6 +37,8 @@ export type {
   AssetType,
   AssetSubtype,
   LiabilityType,
+  RecurringBill,
+  BillPayment,
 };
 
 // Extended types with relations
@@ -235,4 +239,36 @@ export interface NetWorthHistory {
   totalLiabilities: number;
   netWorth: number;
 }
+
+// Bill types with relations
+export interface RecurringBillWithRelations extends RecurringBill {
+  category: Category | null;
+  account: Account | null;
+  payments: BillPayment[];
+}
+
+export interface BillPaymentWithRelations extends BillPayment {
+  bill: RecurringBill;
+  account: Account | null;
+  transaction: Transaction | null;
+}
+
+// Bill form data types
+export interface RecurringBillFormData {
+  name: string;
+  amount: number;
+  categoryId?: string;
+  accountId?: string;
+  dueDay: number;
+  notes?: string;
+}
+
+export interface BillPaymentFormData {
+  paidDate: Date;
+  paidAmount: number;
+  accountId: string;
+}
+
+// Bill status type
+export type BillStatus = "paid" | "overdue" | "due_today" | "upcoming" | "pending";
 

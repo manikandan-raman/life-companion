@@ -241,6 +241,43 @@ export const networthSnapshots = pgTable("networth_snapshots", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Recurring Bills table
+export const recurringBills = pgTable("recurring_bills", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+  categoryId: uuid("category_id")
+    .references(() => categories.id, { onDelete: "set null" }),
+  accountId: uuid("account_id")
+    .references(() => accounts.id, { onDelete: "set null" }),
+  dueDay: integer("due_day").notNull(), // 1-31
+  notes: text("notes"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Bill Payments table - tracks monthly payment status
+export const billPayments = pgTable("bill_payments", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  billId: uuid("bill_id")
+    .references(() => recurringBills.id, { onDelete: "cascade" })
+    .notNull(),
+  month: integer("month").notNull(), // 1-12
+  year: integer("year").notNull(),
+  isPaid: boolean("is_paid").default(false),
+  paidDate: date("paid_date"),
+  paidAmount: decimal("paid_amount", { precision: 15, scale: 2 }),
+  accountId: uuid("account_id")
+    .references(() => accounts.id, { onDelete: "set null" }),
+  transactionId: uuid("transaction_id")
+    .references(() => transactions.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
@@ -251,6 +288,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   assets: many(assets),
   liabilities: many(liabilities),
   networthSnapshots: many(networthSnapshots),
+  recurringBills: many(recurringBills),
 }));
 
 export const accountsRelations = relations(accounts, ({ one, many }) => ({
@@ -348,6 +386,37 @@ export const networthSnapshotsRelations = relations(networthSnapshots, ({ one })
   }),
 }));
 
+export const recurringBillsRelations = relations(recurringBills, ({ one, many }) => ({
+  user: one(users, {
+    fields: [recurringBills.userId],
+    references: [users.id],
+  }),
+  category: one(categories, {
+    fields: [recurringBills.categoryId],
+    references: [categories.id],
+  }),
+  account: one(accounts, {
+    fields: [recurringBills.accountId],
+    references: [accounts.id],
+  }),
+  payments: many(billPayments),
+}));
+
+export const billPaymentsRelations = relations(billPayments, ({ one }) => ({
+  bill: one(recurringBills, {
+    fields: [billPayments.billId],
+    references: [recurringBills.id],
+  }),
+  account: one(accounts, {
+    fields: [billPayments.accountId],
+    references: [accounts.id],
+  }),
+  transaction: one(transactions, {
+    fields: [billPayments.transactionId],
+    references: [transactions.id],
+  }),
+}));
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -384,6 +453,12 @@ export type NewLiabilityPayment = typeof liabilityPayments.$inferInsert;
 
 export type NetworthSnapshot = typeof networthSnapshots.$inferSelect;
 export type NewNetworthSnapshot = typeof networthSnapshots.$inferInsert;
+
+export type RecurringBill = typeof recurringBills.$inferSelect;
+export type NewRecurringBill = typeof recurringBills.$inferInsert;
+
+export type BillPayment = typeof billPayments.$inferSelect;
+export type NewBillPayment = typeof billPayments.$inferInsert;
 
 export type AccountType = (typeof accountTypeEnum.enumValues)[number];
 export type CategoryType = (typeof categoryTypeEnum.enumValues)[number];

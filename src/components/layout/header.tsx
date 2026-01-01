@@ -16,9 +16,10 @@ import Link from "next/link";
 interface HeaderProps {
   title?: string;
   showBack?: boolean;
+  action?: React.ReactNode;
 }
 
-export function Header({ title }: HeaderProps) {
+export function Header({ title, action }: HeaderProps) {
   const { user, logout, isLoggingOut } = useAuth();
 
   const initials = user?.name
@@ -37,58 +38,64 @@ export function Header({ title }: HeaderProps) {
         <h1 className="text-lg font-semibold">{title || "Dashboard"}</h1>
       </div>
 
-      {/* User menu - Mobile only, desktop uses SideRail */}
-      <div className="md:hidden">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <div className="flex items-center gap-2 p-2">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{user?.name}</p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {user?.email}
-                </p>
+      {/* Right side - action + user menu */}
+      <div className="flex items-center gap-2">
+        {/* Action slot - Desktop */}
+        {action && <div className="hidden md:block">{action}</div>}
+
+        {/* Mobile: action + user menu */}
+        <div className="flex md:hidden items-center gap-2">
+          {action}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <div className="flex items-center gap-2 p-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{user?.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {user?.email}
+                  </p>
+                </div>
               </div>
-            </div>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/settings" className="cursor-pointer">
-                <User className="mr-2 h-4 w-4" />
-                Profile
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/categories" className="cursor-pointer">
-                <Settings className="mr-2 h-4 w-4" />
-                Categories
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive cursor-pointer"
-              onClick={() => logout()}
-              disabled={isLoggingOut}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              {isLoggingOut ? "Signing out..." : "Sign out"}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/settings" className="cursor-pointer">
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/categories" className="cursor-pointer">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Categories
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive cursor-pointer"
+                onClick={() => logout()}
+                disabled={isLoggingOut}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                {isLoggingOut ? "Signing out..." : "Sign out"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </header>
   );
 }
-

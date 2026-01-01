@@ -10,6 +10,7 @@ import { BudgetProgress } from "@/components/finance/budget-progress";
 import { TransactionCard } from "@/components/finance/transaction-card";
 import { SpendingCharts } from "@/components/finance/spending-charts";
 import { MonthPicker } from "@/components/finance/month-picker";
+import { BillsWidget } from "@/components/dashboard/bills-widget";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -175,6 +176,11 @@ export function DashboardClient() {
               </>
             )}
           </div>
+        </div>
+
+        {/* Bills Widget */}
+        <div className="animate-card-enter" style={{ animationDelay: "275ms" }}>
+          <BillsWidget />
         </div>
 
         {/* Recent Transactions */}

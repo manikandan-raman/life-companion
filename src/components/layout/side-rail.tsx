@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   ArrowUpDown,
+  Receipt,
   Wallet,
   PieChart,
   TrendingUp,
@@ -30,6 +31,11 @@ const navItems = [
     href: "/transactions",
     label: "Transactions",
     icon: ArrowUpDown,
+  },
+  {
+    href: "/bills",
+    label: "Bills",
+    icon: Receipt,
   },
   {
     href: "/accounts",
