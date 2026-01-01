@@ -13,7 +13,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <SideRail />
       
       {/* Main content */}
-      <main className="md:pl-64 pb-20 md:pb-0">
+      <main className="md:pl-64 pb-28 md:pb-0">
         {children}
       </main>
       

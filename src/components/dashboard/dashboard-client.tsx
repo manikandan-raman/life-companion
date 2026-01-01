@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { startOfMonth, endOfMonth } from "date-fns";
-import { Plus, TrendingUp, TrendingDown, ChevronRight } from "lucide-react";
+import { Plus, TrendingUp, TrendingDown, ChevronRight, Sparkles } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { SummaryCard } from "@/components/finance/summary-card";
 import { BudgetProgress } from "@/components/finance/budget-progress";
@@ -13,7 +13,7 @@ import { MonthPicker } from "@/components/finance/month-picker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSummary, type SummaryData } from "@/hooks/use-transactions";
+import { useSummary } from "@/hooks/use-transactions";
 import { useNetWorth } from "@/hooks/use-networth";
 import type { CategoryType } from "@/types";
 
@@ -44,15 +44,15 @@ export function DashboardClient() {
 
       <div className="px-4 py-6 md:px-6 space-y-6 max-w-4xl mx-auto">
         {/* Month Picker */}
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center animate-card-enter">
           <MonthPicker value={currentDate} onChange={setCurrentDate} />
         </div>
 
-        {/* Summary Cards */}
+        {/* Summary Cards with staggered animation */}
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-24 rounded-xl" />
+              <Skeleton key={i} className="h-28 rounded-2xl" />
             ))}
           </div>
         ) : (
@@ -61,83 +61,95 @@ export function DashboardClient() {
               title="Total Income"
               amount={summary?.totalIncome || 0}
               variant="income"
+              className="animate-card-enter"
             />
             <SummaryCard
               title="Total Expense"
               amount={summary?.totalExpense || 0}
               variant="expense"
+              className="animate-card-enter"
+              style={{ animationDelay: "50ms" }}
             />
             <SummaryCard
               title="Balance"
               amount={summary?.balance || 0}
               variant="balance"
               trend={(summary?.balance || 0) >= 0 ? "up" : "down"}
+              className="animate-card-enter"
+              style={{ animationDelay: "100ms" }}
             />
           </div>
         )}
 
-        {/* Net Worth Card */}
+        {/* Net Worth Card - Modern Design */}
         {isLoadingNetWorth ? (
-          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-28 rounded-2xl" />
         ) : (
-          <Link href="/networth">
-            <Card className="bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border-blue-500/20 hover:shadow-md transition-shadow cursor-pointer">
-              <CardContent className="py-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Your Net Worth</p>
-                    <p
-                      className={`text-2xl font-bold ${
-                        (netWorth?.netWorth || 0) >= 0
-                          ? "text-blue-600"
-                          : "text-red-500"
-                      }`}
-                    >
-                      {formatAmount(netWorth?.netWorth || 0)}
-                    </p>
+          <Link href="/networth" className="block animate-card-enter" style={{ animationDelay: "150ms" }}>
+            <div className="card-modern card-networth relative overflow-hidden rounded-2xl p-5 transition-all duration-200 active:scale-[0.98] cursor-pointer group">
+              {/* Decorative gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10 pointer-events-none" />
+              <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+              
+              <div className="relative flex items-center justify-between">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-primary/70" />
+                    <p className="text-sm text-muted-foreground font-medium">Your Net Worth</p>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <div className="flex items-center gap-1 text-emerald-600">
-                        <TrendingUp className="h-3 w-3" />
-                        <span className="text-xs">
-                          {formatAmount(netWorth?.totalAssets || 0)}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1 text-red-500">
-                        <TrendingDown className="h-3 w-3" />
-                        <span className="text-xs">
-                          {formatAmount(netWorth?.totalLiabilities || 0)}
-                        </span>
-                      </div>
+                  <p
+                    className={`text-3xl font-bold tracking-tight ${
+                      (netWorth?.netWorth || 0) >= 0
+                        ? "text-primary"
+                        : "text-destructive"
+                    }`}
+                  >
+                    {formatAmount(netWorth?.netWorth || 0)}
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-right space-y-1">
+                    <div className="flex items-center gap-1.5 text-income justify-end">
+                      <TrendingUp className="h-3.5 w-3.5" />
+                      <span className="text-xs font-medium">
+                        {formatAmount(netWorth?.totalAssets || 0)}
+                      </span>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                    <div className="flex items-center gap-1.5 text-destructive justify-end">
+                      <TrendingDown className="h-3.5 w-3.5" />
+                      <span className="text-xs font-medium">
+                        {formatAmount(netWorth?.totalLiabilities || 0)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </Link>
         )}
 
-        {/* Spending Charts - now receives pre-computed data */}
-        <SpendingCharts
-          spendingByType={summary?.spendingByType || []}
-          spendingByCategory={summary?.spendingByCategory || []}
-          isLoading={isLoading}
-        />
+        {/* Spending Charts */}
+        <div className="animate-card-enter" style={{ animationDelay: "200ms" }}>
+          <SpendingCharts
+            spendingByType={summary?.spendingByType || []}
+            spendingByCategory={summary?.spendingByCategory || []}
+            isLoading={isLoading}
+          />
+        </div>
 
-        {/* Budget Progress */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-medium">
-              Budget Overview
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-5">
+        {/* Budget Progress - Modern Card */}
+        <div className="card-modern rounded-2xl overflow-hidden animate-card-enter" style={{ animationDelay: "250ms" }}>
+          <div className="p-5 pb-3 border-b border-white/5">
+            <h3 className="text-base font-semibold">Budget Overview</h3>
+          </div>
+          <div className="p-5 space-y-5">
             {isLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-16 rounded-lg" />
+                  <Skeleton key={i} className="h-16 rounded-xl" />
                 ))}
               </div>
             ) : (
@@ -162,16 +174,17 @@ export function DashboardClient() {
                 />
               </>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        {/* Recent Transactions - data comes pre-sorted from server */}
-        <div className="space-y-4">
+        {/* Recent Transactions */}
+        <div className="space-y-4 animate-card-enter" style={{ animationDelay: "300ms" }}>
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">Recent Transactions</h3>
+            <h3 className="font-semibold text-lg">Recent Transactions</h3>
             <Link href="/transactions">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                 View all
+                <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>
           </div>
@@ -179,28 +192,33 @@ export function DashboardClient() {
           {isLoading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-20 rounded-xl" />
+                <Skeleton key={i} className="h-20 rounded-2xl" />
               ))}
             </div>
           ) : !summary?.recentTransactions.length ? (
-            <Card className="border-dashed">
-              <CardContent className="py-8 text-center">
+            <div className="card-modern rounded-2xl border-dashed border-2 border-border/50">
+              <div className="py-10 text-center">
+                <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                  <Plus className="h-6 w-6 text-muted-foreground" />
+                </div>
                 <p className="text-muted-foreground mb-4">
                   No transactions this month
                 </p>
                 <Link href="/transactions/new">
-                  <Button>
+                  <Button className="fab-modern">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Transaction
                   </Button>
                 </Link>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ) : (
             <div className="space-y-3">
-              {summary.recentTransactions.map((transaction) => (
+              {summary.recentTransactions.map((transaction, index) => (
                 <TransactionCard
                   key={transaction.id}
+                  className="animate-card-enter"
+                  style={{ animationDelay: `${350 + index * 50}ms` }}
                   transaction={{
                     id: transaction.id,
                     userId: "",
@@ -250,17 +268,15 @@ export function DashboardClient() {
           )}
         </div>
 
-        {/* Floating Action Button - Mobile */}
+        {/* Floating Action Button - Modern Design */}
         <Link href="/transactions/new" className="md:hidden">
-          <Button
-            size="lg"
-            className="fixed right-4 bottom-24 h-14 w-14 rounded-full shadow-lg"
+          <button
+            className="fab-modern fixed right-5 bottom-24 h-14 w-14 rounded-full flex items-center justify-center text-white active:scale-90 transition-transform z-40"
           >
-            <Plus className="h-6 w-6" />
-          </Button>
+            <Plus className="h-6 w-6" strokeWidth={2.5} />
+          </button>
         </Link>
       </div>
     </div>
   );
 }
-

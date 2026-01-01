@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useMemo } from "react";
 import {
   LayoutDashboard,
   ArrowUpDown,
@@ -42,43 +43,55 @@ const navItems = [
 export function BottomNav() {
   const pathname = usePathname();
 
+  const activeIndex = useMemo(() => {
+    return navItems.findIndex(
+      (item) =>
+        pathname === item.href ||
+        (item.href !== "/" && pathname.startsWith(item.href))
+    );
+  }, [pathname]);
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
-      {/* Blur backdrop */}
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-xl border-t border-border/50" />
-      
-      {/* Navigation items */}
-      <div className="relative flex items-center justify-around px-2 pb-safe">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href || 
-            (item.href !== "/" && pathname.startsWith(item.href));
-          
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex flex-col items-center justify-center gap-1 py-3 px-4 min-w-[64px] transition-colors",
-                isActive
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <item.icon
+    <div
+      className="fixed left-0 right-0 z-50 md:hidden px-3 pointer-events-none bottom-6"
+      style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
+    >
+      {/* Floating pill container */}
+      <nav className="floating-glass-pill pointer-events-auto mx-auto max-w-[420px]">
+        {/* Navigation items */}
+        <div className="relative flex items-center justify-between py-1.5 px-1.5">
+          {navItems.map((item, index) => {
+            const isActive = index === activeIndex;
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
                 className={cn(
-                  "h-5 w-5 transition-transform",
-                  isActive && "scale-110"
+                  "relative flex flex-col items-center justify-center gap-0.5 py-1.5 px-2 rounded-xl transition-all duration-200 active:scale-95 flex-1 min-w-0",
+                  isActive ? "nav-item-active" : "hover:bg-white/3"
                 )}
-              />
-              <span className="text-xs font-medium">{item.label}</span>
-              {isActive && (
-                <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary" />
-              )}
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+              >
+                <item.icon
+                  className={cn(
+                    "h-5 w-5 transition-all duration-200",
+                    isActive ? "text-primary" : "text-white/40"
+                  )}
+                  strokeWidth={isActive ? 2.5 : 1.5}
+                />
+                <span
+                  className={cn(
+                    "text-[9px] font-medium transition-all duration-200 truncate",
+                    isActive ? "text-primary" : "text-white/40"
+                  )}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    </div>
   );
 }
-
