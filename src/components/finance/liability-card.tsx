@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { DEFAULT_COLORS } from "@/lib/colors";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,26 +54,27 @@ export function LiabilityCard({
     : 0;
 
   const getIcon = () => {
+    const iconColor = liability.color || DEFAULT_COLORS.liability;
     switch (liability.type as LiabilityType) {
       case "home_loan":
         return (
           <Home
             className="h-5 w-5"
-            style={{ color: liability.color || "#ef4444" }}
+            style={{ color: iconColor }}
           />
         );
       case "personal_loan":
         return (
           <Wallet
             className="h-5 w-5"
-            style={{ color: liability.color || "#ef4444" }}
+            style={{ color: iconColor }}
           />
         );
       default:
         return (
           <CreditCard
             className="h-5 w-5"
-            style={{ color: liability.color || "#ef4444" }}
+            style={{ color: iconColor }}
           />
         );
     }

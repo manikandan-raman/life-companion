@@ -5,6 +5,7 @@ import { Plus, Loader2, TrendingUp, TrendingDown } from "lucide-react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { ASSET_COLOR_OPTIONS, DEFAULT_COLORS } from "@/lib/colors";
 import { Header } from "@/components/layout/header";
 import { AssetCard } from "@/components/finance/asset-card";
 import { Button } from "@/components/ui/button";
@@ -49,14 +50,8 @@ interface FormValues {
   color: string;
 }
 
-const colorOptions = [
-  { value: "#10b981", label: "Emerald" },
-  { value: "#3b82f6", label: "Blue" },
-  { value: "#8b5cf6", label: "Violet" },
-  { value: "#f59e0b", label: "Amber" },
-  { value: "#06b6d4", label: "Cyan" },
-  { value: "#ec4899", label: "Pink" },
-];
+// Color options imported from centralized config
+const colorOptions = ASSET_COLOR_OPTIONS;
 
 const typeOptions: { value: AssetType; label: string }[] = [
   { value: "investment", label: "Investment" },
@@ -110,7 +105,7 @@ export default function AssetsPage() {
       subtype: "mutual_fund",
       currentValue: undefined,
       purchaseValue: undefined,
-      color: "#10b981",
+      color: DEFAULT_COLORS.asset,
     },
   });
 

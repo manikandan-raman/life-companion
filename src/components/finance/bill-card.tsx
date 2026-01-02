@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { DEFAULT_COLORS } from "@/lib/colors";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -109,7 +110,7 @@ export function BillCard({
   
   // Use category icon, fallback to receipt icon
   const categoryIcon = bill.category?.icon || "receipt";
-  const categoryColor = "#6366f1"; // Default bill color
+  const categoryColor = DEFAULT_COLORS.bill;
   const BillIcon = iconMap[categoryIcon.toLowerCase()] || iconMap[categoryIcon] || Receipt;
 
   const getDueText = () => {

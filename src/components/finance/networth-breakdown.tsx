@@ -4,6 +4,7 @@ import { DonutChart, BarChart } from "@tremor/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ENTITY_COLORS } from "@/lib/colors";
 import type { NetWorthSummary } from "@/types";
 
 interface NetWorthBreakdownProps {
@@ -15,19 +16,21 @@ interface NetWorthBreakdownProps {
 const ASSET_COLORS = ["emerald", "teal", "cyan", "blue", "indigo"];
 const LIABILITY_COLORS = ["rose", "orange", "amber"];
 
+// Asset type colors - using centralized colors where available
 const ASSET_COLORS_HEX: Record<string, string> = {
-  "Bank Accounts": "#10b981",
-  Cash: "#14b8a6",
-  Investments: "#06b6d4",
-  "Fixed Deposits": "#3b82f6",
-  Retirement: "#6366f1",
+  "Bank Accounts": ENTITY_COLORS.emerald.hex,
+  Cash: "#14b8a6", // teal - not in standard palette
+  Investments: ENTITY_COLORS.cyan.hex,
+  "Fixed Deposits": ENTITY_COLORS.blue.hex,
+  Retirement: ENTITY_COLORS.indigo.hex,
 };
 
+// Liability type colors - using centralized colors
 const LIABILITY_COLORS_HEX: Record<string, string> = {
-  "Credit Cards": "#f43f5e",
-  "Home Loan": "#f97316",
-  "Personal Loan": "#f59e0b",
-  "Other Loans": "#eab308",
+  "Credit Cards": "#f43f5e", // rose - not in standard palette
+  "Home Loan": ENTITY_COLORS.orange.hex,
+  "Personal Loan": ENTITY_COLORS.amber.hex,
+  "Other Loans": "#eab308", // yellow - not in standard palette
 };
 
 export function NetWorthBreakdown({
@@ -166,7 +169,7 @@ export function NetWorthBreakdown({
                           className="w-3 h-3 rounded-full"
                           style={{
                             backgroundColor:
-                              ASSET_COLORS_HEX[item.type] || "#6b7280",
+                              ASSET_COLORS_HEX[item.type] || ENTITY_COLORS.gray.hex,
                           }}
                         />
                         <span className="text-xs text-muted-foreground">
@@ -213,7 +216,7 @@ export function NetWorthBreakdown({
                           className="w-3 h-3 rounded-full"
                           style={{
                             backgroundColor:
-                              LIABILITY_COLORS_HEX[item.type] || "#6b7280",
+                              LIABILITY_COLORS_HEX[item.type] || ENTITY_COLORS.gray.hex,
                           }}
                         />
                         <span className="text-xs text-muted-foreground">

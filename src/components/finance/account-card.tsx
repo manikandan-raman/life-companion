@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { DEFAULT_COLORS } from "@/lib/colors";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Wallet, Landmark, CreditCard, MoreVertical, Star } from "lucide-react";
@@ -45,15 +46,16 @@ export function AccountCard({
   };
 
   const getIcon = () => {
+    const iconColor = account.color || DEFAULT_COLORS.account;
     switch (account.type as AccountType) {
       case "cash":
-        return <Wallet className="h-5 w-5" style={{ color: account.color || "#3b82f6" }} />;
+        return <Wallet className="h-5 w-5" style={{ color: iconColor }} />;
       case "bank":
-        return <Landmark className="h-5 w-5" style={{ color: account.color || "#3b82f6" }} />;
+        return <Landmark className="h-5 w-5" style={{ color: iconColor }} />;
       case "credit_card":
-        return <CreditCard className="h-5 w-5" style={{ color: account.color || "#3b82f6" }} />;
+        return <CreditCard className="h-5 w-5" style={{ color: iconColor }} />;
       default:
-        return <Wallet className="h-5 w-5" style={{ color: account.color || "#3b82f6" }} />;
+        return <Wallet className="h-5 w-5" style={{ color: iconColor }} />;
     }
   };
 

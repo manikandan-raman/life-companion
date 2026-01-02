@@ -3,6 +3,7 @@
 import { DonutChart } from "@tremor/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ENTITY_COLORS } from "@/lib/colors";
 import type { SpendingByType, SpendingByCategory } from "@/hooks/use-transactions";
 
 interface SpendingChartsProps {
@@ -33,7 +34,7 @@ function CustomTooltip({ payload, active, colorMap, valueFormatter }: CustomTool
   const data = payload[0];
   const name = data.payload.name;
   const value = data.value;
-  const color = colorMap[name] || data.payload.fill || "#6b7280";
+  const color = colorMap[name] || data.payload.fill || ENTITY_COLORS.gray.hex;
 
   return (
     <div className="bg-popover border border-border rounded-lg px-3 py-2 shadow-lg">
@@ -58,11 +59,11 @@ const TYPE_COLORS: Record<string, string> = {
   Savings: "violet",
 };
 
-// Hex colors for legend display
+// Hex colors for legend display - using centralized colors
 const TYPE_COLORS_HEX: Record<string, string> = {
-  Needs: "#3b82f6",
-  Wants: "#f59e0b",
-  Savings: "#8b5cf6",
+  Needs: ENTITY_COLORS.blue.hex,
+  Wants: ENTITY_COLORS.amber.hex,
+  Savings: ENTITY_COLORS.violet.hex,
 };
 
 // Tremor color names for categories
@@ -79,18 +80,18 @@ const CATEGORY_COLORS = [
   "teal",
 ];
 
-// Hex colors for category legend display
+// Hex colors for category legend display - using centralized colors
 const CATEGORY_COLORS_HEX = [
-  "#3b82f6", // blue
-  "#f59e0b", // amber
-  "#8b5cf6", // violet
-  "#10b981", // emerald
-  "#ec4899", // pink
-  "#06b6d4", // cyan
-  "#eab308", // yellow
-  "#6366f1", // indigo
-  "#f43f5e", // rose
-  "#14b8a6", // teal
+  ENTITY_COLORS.blue.hex,
+  ENTITY_COLORS.amber.hex,
+  ENTITY_COLORS.violet.hex,
+  ENTITY_COLORS.emerald.hex,
+  ENTITY_COLORS.pink.hex,
+  ENTITY_COLORS.cyan.hex,
+  "#eab308", // yellow - not in standard palette
+  ENTITY_COLORS.indigo.hex,
+  "#f43f5e", // rose - not in standard palette
+  "#14b8a6", // teal - not in standard palette
 ];
 
 export function SpendingCharts({
@@ -193,7 +194,7 @@ export function SpendingCharts({
                     <div
                       className="w-3 h-3 rounded-full"
                       style={{
-                        backgroundColor: TYPE_COLORS_HEX[item.name] || "#6b7280",
+                        backgroundColor: TYPE_COLORS_HEX[item.name] || ENTITY_COLORS.gray.hex,
                       }}
                     />
                     <span className="text-xs text-muted-foreground">

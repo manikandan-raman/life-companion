@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { DEFAULT_COLORS } from "@/lib/colors";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -72,33 +73,34 @@ export function AssetCard({
   const isPositive = returns >= 0;
 
   const getIcon = () => {
+    const iconColor = asset.color || DEFAULT_COLORS.asset;
     switch (asset.type as AssetType) {
       case "investment":
         return (
           <TrendingUp
             className="h-5 w-5"
-            style={{ color: asset.color || "#10b981" }}
+            style={{ color: iconColor }}
           />
         );
       case "fixed_deposit":
         return (
           <Landmark
             className="h-5 w-5"
-            style={{ color: asset.color || "#10b981" }}
+            style={{ color: iconColor }}
           />
         );
       case "retirement":
         return (
           <PiggyBank
             className="h-5 w-5"
-            style={{ color: asset.color || "#10b981" }}
+            style={{ color: iconColor }}
           />
         );
       default:
         return (
           <Coins
             className="h-5 w-5"
-            style={{ color: asset.color || "#10b981" }}
+            style={{ color: iconColor }}
           />
         );
     }

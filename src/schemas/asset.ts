@@ -37,7 +37,7 @@ export const assetSchema = z.object({
   color: z
     .string()
     .regex(/^#[0-9A-Fa-f]{6}$/, "Invalid color format")
-    .default("#10b981"),
+    .default("#5cb78a"),
 });
 
 export const assetValuationSchema = z.object({

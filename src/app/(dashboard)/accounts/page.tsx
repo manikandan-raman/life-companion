@@ -5,6 +5,7 @@ import { Plus, Loader2, Wallet } from "lucide-react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { ACCOUNT_COLOR_OPTIONS, DEFAULT_COLORS } from "@/lib/colors";
 import { Header } from "@/components/layout/header";
 import { AccountCard } from "@/components/finance/account-card";
 import { Button } from "@/components/ui/button";
@@ -38,15 +39,8 @@ interface FormValues {
   isDefault: boolean;
 }
 
-const colorOptions = [
-  { value: "#10b981", label: "Emerald" },
-  { value: "#3b82f6", label: "Blue" },
-  { value: "#8b5cf6", label: "Violet" },
-  { value: "#f59e0b", label: "Amber" },
-  { value: "#ef4444", label: "Red" },
-  { value: "#ec4899", label: "Pink" },
-  { value: "#06b6d4", label: "Cyan" },
-];
+// Color options imported from centralized config
+const colorOptions = ACCOUNT_COLOR_OPTIONS;
 
 export default function AccountsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -68,7 +62,7 @@ export default function AccountsPage() {
       name: "",
       type: "bank",
       balance: undefined,
-      color: "#3b82f6",
+      color: DEFAULT_COLORS.account,
       icon: "wallet",
       isDefault: false,
     },

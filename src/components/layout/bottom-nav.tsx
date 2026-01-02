@@ -53,7 +53,7 @@ export function BottomNav() {
 
   return (
     <div
-      className="fixed left-0 right-0 z-50 md:hidden px-3 pointer-events-none bottom-6"
+      className="fixed left-0 right-0 z-50 md:hidden px-3 pointer-events-none bottom-2"
       style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       {/* Floating pill container */}
@@ -69,20 +69,20 @@ export function BottomNav() {
                 href={item.href}
                 className={cn(
                   "relative flex flex-col items-center justify-center gap-0.5 py-1.5 px-2 rounded-xl transition-all duration-200 active:scale-95 flex-1 min-w-0",
-                  isActive ? "nav-item-active" : "hover:bg-white/3"
+                  isActive ? "nav-item-active" : "hover:bg-foreground/5"
                 )}
               >
                 <item.icon
                   className={cn(
                     "h-5 w-5 transition-all duration-200",
-                    isActive ? "text-primary" : "text-white/40"
+                    isActive ? "text-primary" : "text-muted-foreground"
                   )}
                   strokeWidth={isActive ? 2.5 : 1.5}
                 />
                 <span
                   className={cn(
                     "text-[9px] font-medium transition-all duration-200 truncate",
-                    isActive ? "text-primary" : "text-white/40"
+                    isActive ? "text-primary" : "text-muted-foreground"
                   )}
                 >
                   {item.label}

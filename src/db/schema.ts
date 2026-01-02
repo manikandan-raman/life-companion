@@ -195,7 +195,7 @@ export const assets = pgTable("assets", {
   maturityDate: date("maturity_date"),
   interestRate: decimal("interest_rate", { precision: 5, scale: 2 }),
   notes: text("notes"),
-  color: varchar("color", { length: 7 }).default("#10b981"),
+  color: varchar("color", { length: 7 }).default("#5cb78a"),
   isArchived: boolean("is_archived").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

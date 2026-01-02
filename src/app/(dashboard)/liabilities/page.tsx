@@ -5,6 +5,7 @@ import { Plus, Loader2 } from "lucide-react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { LIABILITY_COLOR_OPTIONS, DEFAULT_COLORS } from "@/lib/colors";
 import { Header } from "@/components/layout/header";
 import { LiabilityCard } from "@/components/finance/liability-card";
 import { Button } from "@/components/ui/button";
@@ -49,13 +50,8 @@ interface FormValues {
   color: string;
 }
 
-const colorOptions = [
-  { value: "#ef4444", label: "Red" },
-  { value: "#f97316", label: "Orange" },
-  { value: "#f59e0b", label: "Amber" },
-  { value: "#ec4899", label: "Pink" },
-  { value: "#8b5cf6", label: "Violet" },
-];
+// Color options imported from centralized config
+const colorOptions = LIABILITY_COLOR_OPTIONS;
 
 const typeOptions: { value: LiabilityType; label: string }[] = [
   { value: "home_loan", label: "Home Loan" },
@@ -92,7 +88,7 @@ export default function LiabilitiesPage() {
       principalAmount: undefined,
       outstandingBalance: undefined,
       interestRate: 10,
-      color: "#ef4444",
+      color: DEFAULT_COLORS.liability,
       startDate: new Date(),
     },
   });

@@ -21,9 +21,7 @@ import {
   type BillPaymentFormValues,
 } from "@/hooks/use-bills";
 import { cn } from "@/lib/utils";
-
-// Default color for bills
-const DEFAULT_BILL_COLOR = "#6366f1";
+import { DEFAULT_COLORS, ENTITY_COLORS } from "@/lib/colors";
 
 export function BillsWidget() {
   const [payingBill, setPayingBill] = useState<RecurringBillWithRelations | null>(null);
@@ -156,23 +154,23 @@ export function BillsWidget() {
                     <div
                       className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                       style={{
-                        backgroundColor: `${DEFAULT_BILL_COLOR}20`,
+                        backgroundColor: `${DEFAULT_COLORS.bill}20`,
                       }}
                     >
                       {bill.status === "overdue" ? (
                         <AlertCircle
                           className="h-4 w-4"
-                          style={{ color: "#ef4444" }}
+                          style={{ color: ENTITY_COLORS.red.hex }}
                         />
                       ) : bill.status === "due_today" ? (
                         <Clock
                           className="h-4 w-4"
-                          style={{ color: "#f97316" }}
+                          style={{ color: ENTITY_COLORS.orange.hex }}
                         />
                       ) : (
                         <Receipt
                           className="h-4 w-4"
-                          style={{ color: DEFAULT_BILL_COLOR }}
+                          style={{ color: DEFAULT_COLORS.bill }}
                         />
                       )}
                     </div>

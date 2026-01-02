@@ -10,7 +10,7 @@ const DEFAULT_ACCOUNT = {
   name: "Cash",
   type: "cash" as const,
   balance: "0",
-  color: "#10b981",
+  color: "#5cb78a",
   icon: "wallet",
   isDefault: true,
 };

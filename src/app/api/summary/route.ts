@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db, transactions } from "@/db";
+import { db, transactions, budgetGoals } from "@/db";
 import { eq, and, gte, lte } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
 import { z } from "zod";
@@ -56,6 +56,11 @@ export interface SummaryResponse {
   }>;
 }
 
+// Default budget percentages (50/30/20 rule, with 20% split between savings and investments)
+const DEFAULT_NEEDS_PERCENTAGE = 50;
+const DEFAULT_WANTS_PERCENTAGE = 30;
+const DEFAULT_SAVINGS_PERCENTAGE = 20; // This includes both savings and investments
+
 // GET - Get monthly summary with pre-computed data
 export async function GET(request: Request) {
   try {
@@ -70,6 +75,30 @@ export async function GET(request: Request) {
 
     const startDateStr = params.startDate.toISOString().split("T")[0];
     const endDateStr = params.endDate.toISOString().split("T")[0];
+
+    // Extract month and year from start date for budget goal lookup
+    const month = params.startDate.getMonth() + 1; // getMonth() is 0-indexed
+    const year = params.startDate.getFullYear();
+
+    // Fetch budget goal for this month/year (if exists)
+    const budgetGoal = await db.query.budgetGoals.findFirst({
+      where: and(
+        eq(budgetGoals.userId, userId),
+        eq(budgetGoals.month, month),
+        eq(budgetGoals.year, year)
+      ),
+    });
+
+    // Use stored percentages or defaults
+    const needsPercentage = budgetGoal 
+      ? parseFloat(budgetGoal.needsPercentage) 
+      : DEFAULT_NEEDS_PERCENTAGE;
+    const wantsPercentage = budgetGoal 
+      ? parseFloat(budgetGoal.wantsPercentage) 
+      : DEFAULT_WANTS_PERCENTAGE;
+    const savingsPercentage = budgetGoal 
+      ? parseFloat(budgetGoal.savingsPercentage) 
+      : DEFAULT_SAVINGS_PERCENTAGE;
 
     // Fetch all transactions for the period with their categories
     const transactionList = await db.query.transactions.findMany({
@@ -135,11 +164,12 @@ export async function GET(request: Request) {
     const totalExpense = totalNeeds + totalWants + totalSavings + totalInvestments;
     const balance = totalIncome - totalExpense;
 
-    // Budget goals based on 50/30/20 rule (with investments included in savings/investments)
-    const needsGoal = totalIncome * 0.5;
-    const wantsGoal = totalIncome * 0.3;
-    const savingsGoal = totalIncome * 0.1;
-    const investmentsGoal = totalIncome * 0.1;
+    // Calculate budget goals based on stored/default percentages
+    // Savings percentage is split evenly between savings and investments (each gets half)
+    const needsGoal = totalIncome * (needsPercentage / 100);
+    const wantsGoal = totalIncome * (wantsPercentage / 100);
+    const savingsGoal = totalIncome * (savingsPercentage / 100) * 0.5; // Half of savings allocation
+    const investmentsGoal = totalIncome * (savingsPercentage / 100) * 0.5; // Half of savings allocation
 
     // Prepare spending by type data
     const spendingByType: SpendingByType[] = [];

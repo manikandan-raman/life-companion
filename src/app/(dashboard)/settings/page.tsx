@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Moon, Sun, LogOut, User, Bell, Shield, HelpCircle, Info } from "lucide-react";
+import Link from "next/link";
+import { Moon, Sun, LogOut, User, Bell, Shield, HelpCircle, Info, Target, ChevronRight } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Header } from "@/components/layout/header";
 import { useAuth } from "@/hooks/use-auth";
@@ -12,7 +13,7 @@ import { Separator } from "@/components/ui/separator";
 
 export default function SettingsPage() {
   const { user, logout, isLoggingOut } = useAuth();
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   // Only show theme UI after mounting to avoid hydration mismatch
@@ -32,6 +33,13 @@ export default function SettingsPage() {
     : "?";
 
   const menuItems = [
+    {
+      icon: Target,
+      label: "Budget Goals",
+      description: "Customize your 50/30/20 budget allocation",
+      href: "/settings/budget-goals",
+      highlight: true,
+    },
     {
       icon: User,
       label: "Profile",
@@ -135,17 +143,27 @@ export default function SettingsPage() {
           <CardContent className="p-0">
             {menuItems.map((item, index) => (
               <div key={item.label}>
-                <button className="w-full flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors text-left">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-muted">
-                    <item.icon className="h-5 w-5 text-muted-foreground" />
+                <Link 
+                  href={item.href}
+                  className={`w-full flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors text-left ${
+                    item.highlight ? 'bg-primary/5' : ''
+                  }`}
+                >
+                  <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${
+                    item.highlight ? 'bg-primary/10' : 'bg-muted'
+                  }`}>
+                    <item.icon className={`h-5 w-5 ${
+                      item.highlight ? 'text-primary' : 'text-muted-foreground'
+                    }`} />
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium">{item.label}</p>
+                    <p className={`font-medium ${item.highlight ? 'text-primary' : ''}`}>{item.label}</p>
                     <p className="text-sm text-muted-foreground">
                       {item.description}
                     </p>
                   </div>
-                </button>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                </Link>
                 {index < menuItems.length - 1 && <Separator />}
               </div>
             ))}
@@ -175,4 +193,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-

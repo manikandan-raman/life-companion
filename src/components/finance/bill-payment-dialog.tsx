@@ -24,6 +24,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { DEFAULT_COLORS } from "@/lib/colors";
 import { useAccounts } from "@/hooks/use-accounts";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
@@ -236,7 +237,7 @@ export function BillPaymentDialog({
                     <span className="flex items-center gap-2">
                       <span
                         className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: acc.color || "#3b82f6" }}
+                        style={{ backgroundColor: acc.color || DEFAULT_COLORS.account }}
                       />
                       {acc.name}
                     </span>

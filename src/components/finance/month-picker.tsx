@@ -58,7 +58,7 @@ export function MonthPicker({ value, onChange, monthsToShow = 12, futureMonths =
 
   return (
     <Select value={currentValue} onValueChange={handleChange}>
-      <SelectTrigger className="w-[180px] bg-card">
+      <SelectTrigger className="w-auto min-w-[180px] h-10 px-4 rounded-full bg-muted/50 border-border/50 hover:bg-muted/70 transition-colors">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-muted-foreground" />
           <SelectValue placeholder="Select month" />

@@ -1,14 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { startOfMonth, endOfMonth } from "date-fns";
-import { Plus, TrendingUp, TrendingDown, ChevronRight, Sparkles } from "lucide-react";
+import { Plus, ChevronRight, Settings2 } from "lucide-react";
 import { Header } from "@/components/layout/header";
-import { SummaryCard } from "@/components/finance/summary-card";
 import { BudgetProgress } from "@/components/finance/budget-progress";
 import { TransactionCard } from "@/components/finance/transaction-card";
-import { SpendingCharts } from "@/components/finance/spending-charts";
 import { MonthPicker } from "@/components/finance/month-picker";
 import { BillsWidget } from "@/components/dashboard/bills-widget";
 import { Button } from "@/components/ui/button";
@@ -38,118 +36,187 @@ export function DashboardClient() {
     }).format(value);
   };
 
-  return (
-    <div className="min-h-screen">
-      <Header title="Dashboard" />
+  // Calculate donut chart percentage
+  const spentPercentage = useMemo(() => {
+    if (!summary?.totalIncome || summary.totalIncome === 0) return 0;
+    const percentage = (summary.totalExpense / summary.totalIncome) * 100;
+    return Math.min(percentage, 100);
+  }, [summary]);
 
-      <div className="px-4 py-6 md:px-6 space-y-6 max-w-4xl mx-auto">
-        {/* Month Picker */}
+  // SVG donut chart parameters
+  const size = 140;
+  const strokeWidth = 14;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const spentOffset = circumference - (spentPercentage / 100) * circumference;
+  const remainingOffset =
+    circumference - ((100 - spentPercentage) / 100) * circumference;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header variant="greeting" />
+
+      <div className="px-4 py-5 md:px-6 space-y-6 max-w-4xl mx-auto">
+        {/* Month Selector - Compact pill style */}
         <div className="flex items-center justify-center animate-card-enter">
           <MonthPicker value={currentDate} onChange={setCurrentDate} />
         </div>
 
-        {/* Summary Cards with staggered animation */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-28 rounded-2xl" />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <SummaryCard
-              title="Total Income"
-              amount={summary?.totalIncome || 0}
-              variant="income"
-              className="animate-card-enter"
-            />
-            <SummaryCard
-              title="Total Expense"
-              amount={summary?.totalExpense || 0}
-              variant="expense"
-              className="animate-card-enter"
-              style={{ animationDelay: "50ms" }}
-            />
-            <SummaryCard
-              title="Balance"
-              amount={summary?.balance || 0}
-              variant="balance"
-              trend={(summary?.balance || 0) >= 0 ? "up" : "down"}
-              className="animate-card-enter"
-              style={{ animationDelay: "100ms" }}
-            />
-          </div>
-        )}
+        {/* Consolidated Summary Card with Donut Chart */}
+        <div className="animate-card-enter" style={{ animationDelay: "50ms" }}>
+          {isLoading ? (
+            <Skeleton className="h-48 rounded-3xl" />
+          ) : (
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-card via-card to-muted/20 border border-border/50 p-6 shadow-xl shadow-black/5">
+              {/* Subtle gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
 
-        {/* Net Worth Card - Modern Design */}
-        {isLoadingNetWorth ? (
-          <Skeleton className="h-28 rounded-2xl" />
-        ) : (
-          <Link href="/networth" className="block animate-card-enter" style={{ animationDelay: "150ms" }}>
-            <div className="card-modern card-networth relative overflow-hidden rounded-2xl p-5 transition-all duration-200 active:scale-[0.98] cursor-pointer group">
-              {/* Decorative gradient */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10 pointer-events-none" />
-              <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-              
-              <div className="relative flex items-center justify-between">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-primary/70" />
-                    <p className="text-sm text-muted-foreground font-medium">Your Net Worth</p>
+              <div className="relative flex items-center justify-between gap-6">
+                {/* Left side - Income & Spent */}
+                <div className="flex-1 space-y-5">
+                  {/* Income */}
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-4 rounded-full bg-income" />
+                      <span className="text-sm text-muted-foreground font-medium">
+                        Income
+                      </span>
+                    </div>
+                    <p className="text-3xl font-bold tracking-tight text-income">
+                      {formatAmount(summary?.totalIncome || 0)}
+                    </p>
                   </div>
-                  <p
-                    className={`text-3xl font-bold tracking-tight ${
-                      (netWorth?.netWorth || 0) >= 0
+
+                  {/* Spent */}
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-4 rounded-full bg-destructive" />
+                      <span className="text-sm text-muted-foreground font-medium">
+                        Spent
+                      </span>
+                    </div>
+                    <p className="text-2xl font-bold tracking-tight text-destructive">
+                      {formatAmount(summary?.totalExpense || 0)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right side - Donut Chart */}
+                <div className="relative">
+                  <svg
+                    width={size}
+                    height={size}
+                    className="transform -rotate-90"
+                  >
+                    {/* Background circle */}
+                    <circle
+                      cx={size / 2}
+                      cy={size / 2}
+                      r={radius}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={strokeWidth}
+                      className="text-muted/30"
+                    />
+                    {/* Remaining (income - spent) - green arc */}
+                    <circle
+                      cx={size / 2}
+                      cy={size / 2}
+                      r={radius}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={strokeWidth}
+                      strokeDasharray={circumference}
+                      strokeDashoffset={remainingOffset}
+                      strokeLinecap="round"
+                      className="text-income transition-all duration-700 ease-out"
+                    />
+                    {/* Spent - coral/salmon arc */}
+                    <circle
+                      cx={size / 2}
+                      cy={size / 2}
+                      r={radius}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={strokeWidth}
+                      strokeDasharray={circumference}
+                      strokeDashoffset={spentOffset}
+                      strokeLinecap="round"
+                      className="text-expense transition-all duration-700 ease-out"
+                      style={{
+                        transform: `rotate(${
+                          (100 - spentPercentage) * 3.6
+                        }deg)`,
+                        transformOrigin: "center",
+                      }}
+                    />
+                  </svg>
+                  {/* Center text */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-xs text-muted-foreground">
+                      Balance
+                    </span>
+                    <span
+                      className={`text-lg font-bold ${
+                        (summary?.balance || 0) >= 0
+                          ? "text-income"
+                          : "text-destructive"
+                      }`}
+                    >
+                      {spentPercentage > 0
+                        ? `${Math.round(100 - spentPercentage)}%`
+                        : "100%"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Balance bar at bottom */}
+              <div className="mt-5 pt-4 border-t border-border/30">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Monthly Balance
+                  </span>
+                  <span
+                    className={`text-lg font-bold ${
+                      (summary?.balance || 0) >= 0
                         ? "text-primary"
                         : "text-destructive"
                     }`}
                   >
-                    {formatAmount(netWorth?.netWorth || 0)}
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right space-y-1">
-                    <div className="flex items-center gap-1.5 text-income justify-end">
-                      <TrendingUp className="h-3.5 w-3.5" />
-                      <span className="text-xs font-medium">
-                        {formatAmount(netWorth?.totalAssets || 0)}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-destructive justify-end">
-                      <TrendingDown className="h-3.5 w-3.5" />
-                      <span className="text-xs font-medium">
-                        {formatAmount(netWorth?.totalLiabilities || 0)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                  </div>
+                    {formatAmount(summary?.balance || 0)}
+                  </span>
                 </div>
               </div>
             </div>
-          </Link>
-        )}
-
-        {/* Spending Charts */}
-        <div className="animate-card-enter" style={{ animationDelay: "200ms" }}>
-          <SpendingCharts
-            spendingByType={summary?.spendingByType || []}
-            spendingByCategory={summary?.spendingByCategory || []}
-            isLoading={isLoading}
-          />
+          )}
         </div>
 
         {/* Budget Progress - Modern Card */}
-        <div className="card-modern rounded-2xl overflow-hidden animate-card-enter" style={{ animationDelay: "250ms" }}>
-          <div className="p-5 pb-3 border-b border-white/5">
-            <h3 className="text-base font-semibold">Budget Overview</h3>
+        <div
+          className="rounded-2xl overflow-hidden animate-card-enter bg-card border border-border/50"
+          style={{ animationDelay: "150ms" }}
+        >
+          <div className="p-4 pb-3 border-b border-border/30 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Budget Overview
+            </h3>
+            <Link href="/settings/budget-goals">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-foreground h-7 px-2 text-xs"
+              >
+                <Settings2 className="h-3.5 w-3.5 mr-1" />
+                Customize
+              </Button>
+            </Link>
           </div>
-          <div className="p-5 space-y-5">
+          <div className="p-4 space-y-4">
             {isLoading ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-16 rounded-xl" />
+                  <Skeleton key={i} className="h-14 rounded-xl" />
                 ))}
               </div>
             ) : (
@@ -169,8 +236,14 @@ export function DashboardClient() {
                 <BudgetProgress
                   type="savings"
                   label="Savings (20%)"
-                  current={(summary?.savings.current || 0) + (summary?.investments?.current || 0)}
-                  goal={(summary?.savings.goal || 0) + (summary?.investments?.goal || 0)}
+                  current={
+                    (summary?.savings.current || 0) +
+                    (summary?.investments?.current || 0)
+                  }
+                  goal={
+                    (summary?.savings.goal || 0) +
+                    (summary?.investments?.goal || 0)
+                  }
                 />
               </>
             )}
@@ -178,52 +251,61 @@ export function DashboardClient() {
         </div>
 
         {/* Bills Widget */}
-        <div className="animate-card-enter" style={{ animationDelay: "275ms" }}>
+        <div className="animate-card-enter" style={{ animationDelay: "200ms" }}>
           <BillsWidget />
         </div>
 
         {/* Recent Transactions */}
-        <div className="space-y-4 animate-card-enter" style={{ animationDelay: "300ms" }}>
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-lg">Recent Transactions</h3>
+        <div
+          className="space-y-3 animate-card-enter"
+          style={{ animationDelay: "250ms" }}
+        >
+          <div className="flex items-center justify-between px-1">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Recent Transactions
+            </h3>
             <Link href="/transactions">
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                View all
-                <ChevronRight className="h-4 w-4 ml-1" />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-foreground h-7 text-xs"
+              >
+                See All
+                <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
               </Button>
             </Link>
           </div>
 
           {isLoading ? (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-20 rounded-2xl" />
+                <Skeleton key={i} className="h-16 rounded-xl" />
               ))}
             </div>
           ) : !summary?.recentTransactions.length ? (
-            <div className="card-modern rounded-2xl border-dashed border-2 border-border/50">
-              <div className="py-10 text-center">
-                <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                  <Plus className="h-6 w-6 text-muted-foreground" />
+            <div className="rounded-2xl border-2 border-dashed border-border/50 bg-card/50">
+              <div className="py-8 text-center">
+                <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-3">
+                  <Plus className="h-5 w-5 text-muted-foreground" />
                 </div>
-                <p className="text-muted-foreground mb-4">
+                <p className="text-sm text-muted-foreground mb-3">
                   No transactions this month
                 </p>
                 <Link href="/transactions/new">
-                  <Button className="fab-modern">
-                    <Plus className="h-4 w-4 mr-2" />
+                  <Button size="sm" className="h-8 px-4 text-xs font-medium">
+                    <Plus className="h-3.5 w-3.5 mr-1.5" />
                     Add Transaction
                   </Button>
                 </Link>
               </div>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {summary.recentTransactions.map((transaction, index) => (
                 <TransactionCard
                   key={transaction.id}
                   className="animate-card-enter"
-                  style={{ animationDelay: `${350 + index * 50}ms` }}
+                  style={{ animationDelay: `${300 + index * 50}ms` }}
                   transaction={{
                     id: transaction.id,
                     userId: "",
@@ -269,7 +351,10 @@ export function DashboardClient() {
                           id: transaction.account.id,
                           userId: "",
                           name: transaction.account.name,
-                          type: transaction.account.type as "bank" | "cash" | "credit_card",
+                          type: transaction.account.type as
+                            | "bank"
+                            | "cash"
+                            | "credit_card",
                           balance: "0",
                           color: transaction.account.color,
                           icon: null,
@@ -287,6 +372,8 @@ export function DashboardClient() {
           )}
         </div>
 
+        {/* Bottom spacing for navigation */}
+        <div className="h-4" />
       </div>
     </div>
   );
