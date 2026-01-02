@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Wallet, Landmark, CreditCard, MoreVertical } from "lucide-react";
+import { Wallet, Landmark, CreditCard, MoreVertical, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -23,6 +23,7 @@ interface AccountCardProps {
   account: AccountFromView;
   onEdit?: () => void;
   onDelete?: () => void;
+  onSetDefault?: () => void;
   className?: string;
 }
 
@@ -30,6 +31,7 @@ export function AccountCard({
   account,
   onEdit,
   onDelete,
+  onSetDefault,
   className,
 }: AccountCardProps) {
   const formatAmount = (value: number | string) => {
@@ -91,6 +93,12 @@ export function AccountCard({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                {!account.isDefault && (
+                  <DropdownMenuItem onClick={onSetDefault}>
+                    <Star className="h-4 w-4 mr-2" />
+                    Set as Default
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={onEdit}>Edit</DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={onDelete}

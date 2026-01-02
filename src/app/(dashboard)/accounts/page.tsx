@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAccounts, useCreateAccount, useDeleteAccount } from "@/hooks/use-accounts";
+import { useAccounts, useCreateAccount, useDeleteAccount, useUpdateAccount } from "@/hooks/use-accounts";
 import { accountSchema } from "@/schemas/account";
 import { cn } from "@/lib/utils";
 
@@ -53,6 +53,7 @@ export default function AccountsPage() {
   const { data: accounts, isLoading } = useAccounts();
   const createAccount = useCreateAccount();
   const deleteAccount = useDeleteAccount();
+  const updateAccount = useUpdateAccount();
 
   const {
     register,
@@ -98,6 +99,17 @@ export default function AccountsPage() {
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to delete account"
+      );
+    }
+  };
+
+  const handleSetDefault = async (id: string) => {
+    try {
+      await updateAccount.mutateAsync({ id, data: { isDefault: true } });
+      toast.success("Default account updated");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to set default account"
       );
     }
   };
@@ -169,6 +181,7 @@ export default function AccountsPage() {
                   key={account.id}
                   account={account}
                   onDelete={() => handleDelete(account.id)}
+                  onSetDefault={() => handleSetDefault(account.id)}
                 />
               ))}
             </div>
@@ -233,6 +246,7 @@ export default function AccountsPage() {
                 <Input
                   id="balance"
                   type="number"
+                  inputMode="decimal"
                   step="0.01"
                   placeholder="0.00"
                   className="pl-8"

@@ -258,6 +258,20 @@ export const SEED_CATEGORIES = [
       { id: "misc", name: "Miscellaneous", icon: "Package" },
     ],
   },
+
+  // ============ CREDIT CARDS & LOANS ============
+  {
+    id: "credit_cards",
+    name: "Credit Cards & Loans",
+    icon: "CreditCard",
+    subCategories: [
+      { id: "credit_card_bill", name: "Credit Card Bill", icon: "CreditCard" },
+      { id: "personal_loan", name: "Personal Loan EMI", icon: "HandCoins" },
+      { id: "education_loan", name: "Education Loan EMI", icon: "GraduationCap" },
+      { id: "business_loan", name: "Business Loan EMI", icon: "Briefcase" },
+      { id: "loan_interest", name: "Loan Interest", icon: "Percent" },
+    ],
+  },
 ];
 
 /**

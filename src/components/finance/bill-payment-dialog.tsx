@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { billPaymentSchema } from "@/schemas/bill";
@@ -85,23 +86,34 @@ export function BillPaymentDialog({
   const billAmount = bill ? parseFloat(String(bill.amount)) : 0;
   const billAccountId = bill?.accountId || "";
 
-  // Update form when bill changes
-  if (open && bill) {
-    const currentAmount = watch("paidAmount");
-    const currentAccountId = watch("accountId");
-    
-    // Only update if values are different (to avoid infinite loop)
-    if (currentAmount !== billAmount && currentAmount === 0) {
-      setValue("paidAmount", billAmount);
-    }
-    if (currentAccountId !== billAccountId && currentAccountId === "") {
-      setValue("accountId", billAccountId);
-    }
-  }
-
   const selectedType = watch("type");
   const selectedDate = watch("paidDate");
   const selectedAccountId = watch("accountId");
+
+  // Update form when bill changes or when dialog opens
+  useEffect(() => {
+    if (open && bill) {
+      const currentAmount = watch("paidAmount");
+      const currentAccountId = watch("accountId");
+      
+      // Update amount if needed
+      if (currentAmount !== billAmount && currentAmount === 0) {
+        setValue("paidAmount", billAmount);
+      }
+      
+      // Set account: prefer bill's account, fall back to default account
+      if (currentAccountId === "") {
+        if (billAccountId) {
+          setValue("accountId", billAccountId);
+        } else if (accounts) {
+          const defaultAccount = accounts.find((acc) => acc.isDefault);
+          if (defaultAccount) {
+            setValue("accountId", defaultAccount.id);
+          }
+        }
+      }
+    }
+  }, [open, bill, billAmount, billAccountId, accounts, setValue, watch]);
 
   const handleFormSubmit = async (data: FormValues) => {
     await onSubmit(data);
@@ -196,6 +208,7 @@ export function BillPaymentDialog({
             <Input
               id="paidAmount"
               type="number"
+              inputMode="decimal"
               step="0.01"
               placeholder="₹0.00"
               {...register("paidAmount", { valueAsNumber: true })}

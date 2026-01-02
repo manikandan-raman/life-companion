@@ -315,6 +315,7 @@ export default function AssetsPage() {
                         <Input
                           id="currentValue"
                           type="number"
+                          inputMode="decimal"
                           step="0.01"
                           placeholder="0.00"
                           className="pl-8"
@@ -332,6 +333,7 @@ export default function AssetsPage() {
                         <Input
                           id="purchaseValue"
                           type="number"
+                          inputMode="decimal"
                           step="0.01"
                           placeholder="0.00"
                           className="pl-8"
@@ -348,6 +350,7 @@ export default function AssetsPage() {
                       <Input
                         id="interestRate"
                         type="number"
+                        inputMode="decimal"
                         step="0.01"
                         placeholder="7.5"
                         {...register("interestRate", { valueAsNumber: true })}
@@ -446,6 +449,7 @@ export default function AssetsPage() {
                   <Input
                     id="newValue"
                     type="number"
+                    inputMode="decimal"
                     step="0.01"
                     value={newValue}
                     onChange={(e) => setNewValue(e.target.value)}

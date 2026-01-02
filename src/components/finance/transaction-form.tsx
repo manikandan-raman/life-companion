@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
@@ -82,6 +83,17 @@ export function TransactionForm({
   const selectedCategoryId = watch("categoryId");
   const selectedSubCategoryId = watch("subCategoryId");
   const selectedType = watch("type");
+  const currentAccountId = watch("accountId");
+
+  // Set default account when accounts are loaded and no account is selected
+  useEffect(() => {
+    if (accounts && !defaultValues?.accountId && !currentAccountId) {
+      const defaultAccount = accounts.find((acc) => acc.isDefault);
+      if (defaultAccount) {
+        setValue("accountId", defaultAccount.id);
+      }
+    }
+  }, [accounts, defaultValues?.accountId, currentAccountId, setValue]);
 
   // Get sub-categories for the selected category
   const selectedCategory = categories?.find((c) => c.id === selectedCategoryId);
@@ -159,6 +171,7 @@ export function TransactionForm({
           <Input
             id="amount"
             type="number"
+            inputMode="decimal"
             step="0.01"
             placeholder="0.00"
             className={cn("pl-8 text-lg", errors.amount && "border-destructive")}

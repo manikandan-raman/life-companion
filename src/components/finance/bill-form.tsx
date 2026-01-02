@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { recurringBillSchema } from "@/schemas/bill";
@@ -59,6 +60,16 @@ export function BillForm({
   const selectedSubCategoryId = watch("subCategoryId");
   const selectedAccountId = watch("accountId");
 
+  // Set default account when accounts are loaded and no account is selected
+  useEffect(() => {
+    if (accounts && !defaultValues?.accountId && !selectedAccountId) {
+      const defaultAccount = accounts.find((acc) => acc.isDefault);
+      if (defaultAccount) {
+        setValue("accountId", defaultAccount.id);
+      }
+    }
+  }, [accounts, defaultValues?.accountId, selectedAccountId, setValue]);
+
   // Get sub-categories for the selected category
   const selectedCategory = categories?.find((c) => c.id === selectedCategoryId);
   const subCategoriesForCategory = selectedCategory?.subCategories || [];
@@ -97,6 +108,7 @@ export function BillForm({
         <Input
           id="amount"
           type="number"
+          inputMode="decimal"
           step="0.01"
           placeholder="₹0.00"
           {...register("amount", { valueAsNumber: true })}
@@ -113,6 +125,7 @@ export function BillForm({
         <Input
           id="dueDay"
           type="number"
+          inputMode="numeric"
           min="1"
           max="31"
           placeholder="1-31"

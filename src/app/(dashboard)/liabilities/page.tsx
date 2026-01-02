@@ -260,6 +260,7 @@ export default function LiabilitiesPage() {
                         <Input
                           id="principalAmount"
                           type="number"
+                          inputMode="decimal"
                           step="0.01"
                           placeholder="0.00"
                           className="pl-8"
@@ -281,6 +282,7 @@ export default function LiabilitiesPage() {
                         <Input
                           id="outstandingBalance"
                           type="number"
+                          inputMode="decimal"
                           step="0.01"
                           placeholder="0.00"
                           className="pl-8"
@@ -298,6 +300,7 @@ export default function LiabilitiesPage() {
                       <Input
                         id="interestRate"
                         type="number"
+                        inputMode="decimal"
                         step="0.01"
                         placeholder="10.5"
                         {...register("interestRate", { valueAsNumber: true })}
@@ -313,6 +316,7 @@ export default function LiabilitiesPage() {
                         <Input
                           id="emiAmount"
                           type="number"
+                          inputMode="decimal"
                           step="0.01"
                           placeholder="0.00"
                           className="pl-8"
@@ -426,6 +430,7 @@ export default function LiabilitiesPage() {
                   <Input
                     id="paymentAmount"
                     type="number"
+                    inputMode="decimal"
                     step="0.01"
                     value={paymentAmount}
                     onChange={(e) => setPaymentAmount(e.target.value)}
@@ -442,6 +447,7 @@ export default function LiabilitiesPage() {
                   <Input
                     id="principalPaid"
                     type="number"
+                    inputMode="decimal"
                     step="0.01"
                     value={principalPaid}
                     onChange={(e) => setPrincipalPaid(e.target.value)}
