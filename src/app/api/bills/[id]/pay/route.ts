@@ -3,6 +3,7 @@ import { db, recurringBills, billPayments, transactions, accounts } from "@/db";
 import { eq, and } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
 import { billPaymentSchema } from "@/schemas/bill";
+import { format } from "date-fns";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -77,6 +78,9 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
 
+    // Format date in local timezone to avoid UTC offset issues
+    const paidDateStr = format(data.paidDate, "yyyy-MM-dd");
+
     // Create a transaction for this payment
     const [newTransaction] = await db
       .insert(transactions)
@@ -89,7 +93,7 @@ export async function POST(request: Request, { params }: RouteParams) {
         categoryId: bill.categoryId,
         subCategoryId: bill.subCategoryId,
         accountId: data.accountId,
-        transactionDate: data.paidDate.toISOString().split("T")[0],
+        transactionDate: paidDateStr,
       })
       .returning();
 
@@ -101,7 +105,7 @@ export async function POST(request: Request, { params }: RouteParams) {
         .update(billPayments)
         .set({
           isPaid: true,
-          paidDate: data.paidDate.toISOString().split("T")[0],
+          paidDate: paidDateStr,
           paidAmount: String(data.paidAmount),
           accountId: data.accountId,
           transactionId: newTransaction.id,
@@ -117,7 +121,7 @@ export async function POST(request: Request, { params }: RouteParams) {
           month,
           year,
           isPaid: true,
-          paidDate: data.paidDate.toISOString().split("T")[0],
+          paidDate: paidDateStr,
           paidAmount: String(data.paidAmount),
           accountId: data.accountId,
           transactionId: newTransaction.id,

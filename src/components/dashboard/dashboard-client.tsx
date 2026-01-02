@@ -8,10 +8,12 @@ import { Header } from "@/components/layout/header";
 import { BudgetProgress } from "@/components/finance/budget-progress";
 import { TransactionCard } from "@/components/finance/transaction-card";
 import { MonthPicker } from "@/components/finance/month-picker";
+import { SpendingBreakdown } from "@/components/finance/spending-breakdown";
 import { BillsWidget } from "@/components/dashboard/bills-widget";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSummary } from "@/hooks/use-transactions";
+import { useSpendingBreakdown } from "@/hooks/use-spending-breakdown";
 import { useNetWorth } from "@/hooks/use-networth";
 import type { TransactionType } from "@/types";
 
@@ -24,6 +26,12 @@ export function DashboardClient() {
     startDate,
     endDate,
   });
+
+  const { data: spendingBreakdown, isLoading: isLoadingBreakdown } =
+    useSpendingBreakdown({
+      startDate,
+      endDate,
+    });
 
   const { data: netWorth, isLoading: isLoadingNetWorth } = useNetWorth();
 
@@ -192,10 +200,22 @@ export function DashboardClient() {
           )}
         </div>
 
+        {/* Spending Breakdown */}
+        <div
+          className="animate-card-enter"
+          style={{ animationDelay: "100ms" }}
+        >
+          <SpendingBreakdown
+            categories={spendingBreakdown?.categories || []}
+            totalSpending={spendingBreakdown?.totalSpending || 0}
+            isLoading={isLoadingBreakdown}
+          />
+        </div>
+
         {/* Budget Progress - Modern Card */}
         <div
           className="rounded-2xl overflow-hidden animate-card-enter bg-card border border-border/50"
-          style={{ animationDelay: "150ms" }}
+          style={{ animationDelay: "200ms" }}
         >
           <div className="p-4 pb-3 border-b border-border/30 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
@@ -251,14 +271,14 @@ export function DashboardClient() {
         </div>
 
         {/* Bills Widget */}
-        <div className="animate-card-enter" style={{ animationDelay: "200ms" }}>
+        <div className="animate-card-enter" style={{ animationDelay: "300ms" }}>
           <BillsWidget />
         </div>
 
         {/* Recent Transactions */}
         <div
           className="space-y-3 animate-card-enter"
-          style={{ animationDelay: "250ms" }}
+          style={{ animationDelay: "350ms" }}
         >
           <div className="flex items-center justify-between px-1">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
@@ -305,7 +325,7 @@ export function DashboardClient() {
                 <TransactionCard
                   key={transaction.id}
                   className="animate-card-enter"
-                  style={{ animationDelay: `${300 + index * 50}ms` }}
+                  style={{ animationDelay: `${400 + index * 50}ms` }}
                   transaction={{
                     id: transaction.id,
                     userId: "",
