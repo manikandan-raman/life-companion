@@ -2,7 +2,18 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Moon, Sun, LogOut, User, Bell, Shield, HelpCircle, Info, Target, ChevronRight } from "lucide-react";
+import {
+  Moon,
+  Sun,
+  LogOut,
+  User,
+  Bell,
+  Shield,
+  HelpCircle,
+  Info,
+  Target,
+  ChevronRight,
+} from "lucide-react";
 import { useTheme } from "next-themes";
 import { Header } from "@/components/layout/header";
 import { useAuth } from "@/hooks/use-auth";
@@ -76,10 +87,10 @@ export default function SettingsPage() {
     <div className="min-h-screen">
       <Header title="Settings" />
 
-      <div className="px-4 py-6 md:px-6 space-y-6 max-w-4xl mx-auto">
+      <div className="p-4 md:px-6 space-y-6 max-w-4xl mx-auto">
         {/* Profile Card */}
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3">
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
                 <AvatarFallback className="bg-primary/10 text-primary text-xl">
@@ -112,7 +123,8 @@ export default function SettingsPage() {
                 <div>
                   <p className="font-medium">Theme</p>
                   <p className="text-sm text-muted-foreground">
-                    Currently using {currentTheme === "dark" ? "dark" : "light"} theme
+                    Currently using {currentTheme === "dark" ? "dark" : "light"}{" "}
+                    theme
                   </p>
                 </div>
               </div>
@@ -143,21 +155,33 @@ export default function SettingsPage() {
           <CardContent className="p-0">
             {menuItems.map((item, index) => (
               <div key={item.label}>
-                <Link 
+                <Link
                   href={item.href}
                   className={`w-full flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors text-left ${
-                    item.highlight ? 'bg-primary/5' : ''
+                    item.highlight ? "bg-primary/5" : ""
                   }`}
                 >
-                  <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${
-                    item.highlight ? 'bg-primary/10' : 'bg-muted'
-                  }`}>
-                    <item.icon className={`h-5 w-5 ${
-                      item.highlight ? 'text-primary' : 'text-muted-foreground'
-                    }`} />
+                  <div
+                    className={`flex items-center justify-center w-10 h-10 rounded-lg ${
+                      item.highlight ? "bg-primary/10" : "bg-muted"
+                    }`}
+                  >
+                    <item.icon
+                      className={`h-5 w-5 ${
+                        item.highlight
+                          ? "text-primary"
+                          : "text-muted-foreground"
+                      }`}
+                    />
                   </div>
                   <div className="flex-1">
-                    <p className={`font-medium ${item.highlight ? 'text-primary' : ''}`}>{item.label}</p>
+                    <p
+                      className={`font-medium ${
+                        item.highlight ? "text-primary" : ""
+                      }`}
+                    >
+                      {item.label}
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       {item.description}
                     </p>

@@ -39,6 +39,7 @@ import {
   BarChart,
   Lock,
   LifeBuoy,
+  Wallet,
 } from "lucide-react";
 import type { BillStatus } from "@/types";
 import type { RecurringBillWithRelations } from "@/hooks/use-bills";
@@ -54,7 +55,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   car: Car,
   heart: Heart,
   film: Film,
-  utensils: Receipt, // Use Receipt as fallback for utensils
+  utensils: Receipt,
   "shopping-bag": ShoppingBag,
   "more-horizontal": MoreHorizontal,
   circle: Circle,
@@ -71,7 +72,11 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 
 const statusConfig: Record<
   BillStatus,
-  { label: string; variant: "default" | "destructive" | "secondary" | "outline"; icon: React.ComponentType<{ className?: string }> }
+  {
+    label: string;
+    variant: "default" | "destructive" | "secondary" | "outline";
+    icon: React.ComponentType<{ className?: string }>;
+  }
 > = {
   paid: { label: "Paid", variant: "default", icon: Check },
   overdue: { label: "Overdue", variant: "destructive", icon: AlertCircle },
@@ -107,11 +112,12 @@ export function BillCard({
 
   const status = statusConfig[bill.status];
   const StatusIcon = status.icon;
-  
+
   // Use category icon, fallback to receipt icon
   const categoryIcon = bill.category?.icon || "receipt";
   const categoryColor = DEFAULT_COLORS.bill;
-  const BillIcon = iconMap[categoryIcon.toLowerCase()] || iconMap[categoryIcon] || Receipt;
+  const BillIcon =
+    iconMap[categoryIcon.toLowerCase()] || iconMap[categoryIcon] || Receipt;
 
   const getDueText = () => {
     const day = bill.dueDay;
@@ -123,100 +129,122 @@ export function BillCard({
         : day === 3 || day === 23
         ? "rd"
         : "th";
-    return `Due on ${day}${suffix}`;
+    return `${day}${suffix}`;
   };
 
   return (
     <Card
       className={cn(
-        "border-border/50 transition-all hover:shadow-md",
+        "border-border/50 transition-all hover:shadow-md overflow-hidden",
         bill.status === "overdue" && "border-destructive/50",
         bill.status === "due_today" && "border-orange-500/50",
         className
       )}
     >
       <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-3">
-          {/* Icon and Info */}
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div
-              className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0"
-              style={{
-                backgroundColor: `${categoryColor}20`,
-              }}
-            >
-              <span style={{ color: categoryColor }}>
-                <BillIcon className="h-5 w-5" />
-              </span>
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-medium truncate">{bill.name}</h3>
-                <Badge variant={status.variant} className="text-xs py-0 h-5 gap-1">
-                  <StatusIcon className="h-3 w-3" />
-                  {status.label}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                {bill.category && (
-                  <span className="truncate">{bill.category.name}</span>
-                )}
-                {bill.category && <span>•</span>}
-                <span>{getDueText()}</span>
-              </div>
-            </div>
+        {/* Main content row - fixed grid layout */}
+        <div className="flex items-center gap-3">
+          {/* Icon */}
+          <div
+            className="flex items-center justify-center w-11 h-11 rounded-xl shrink-0"
+            style={{
+              backgroundColor: `${categoryColor}15`,
+            }}
+          >
+            <span style={{ color: categoryColor }}>
+              <BillIcon className="h-5 w-5" />
+            </span>
           </div>
 
-          {/* Amount and Actions */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Info section - fixed width with truncation */}
+          <div className="flex-1 min-w-0 grid grid-cols-[1fr_auto] gap-x-3 gap-y-0.5 items-center">
+            {/* Row 1: Name + Badge | Amount */}
+            <div className="flex items-center gap-2 min-w-0">
+              <h3 className="font-semibold text-sm truncate max-w-[120px]">
+                {bill.name}
+              </h3>
+              <Badge
+                variant={status.variant}
+                className="text-[10px] px-1.5 py-0 h-[18px] gap-0.5 shrink-0"
+              >
+                <StatusIcon className="h-2.5 w-2.5" />
+                {status.label}
+              </Badge>
+            </div>
             <div className="text-right">
               <p
                 className={cn(
-                  "font-semibold text-lg",
-                  bill.status === "paid" && "text-muted-foreground line-through",
+                  "font-bold text-base tabular-nums",
+                  bill.status === "paid" &&
+                    "text-muted-foreground line-through",
                   bill.status === "overdue" && "text-destructive"
                 )}
               >
                 {formatAmount(bill.amount)}
               </p>
-              {bill.payment?.paidDate && (
-                <p className="text-xs text-muted-foreground">
-                  Paid {new Date(bill.payment.paidDate).toLocaleDateString("en-IN", {
+            </div>
+
+            {/* Row 2: Category + Due | Paid date */}
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              {bill.category && (
+                <>
+                  <span className="truncate max-w-[80px]">
+                    {bill.category.name}
+                  </span>
+                  <span className="text-border">•</span>
+                </>
+              )}
+              <span className="whitespace-nowrap">Due on {getDueText()}</span>
+            </div>
+            <div className="text-right">
+              {bill.payment?.paidDate ? (
+                <p className="text-xs text-muted-foreground whitespace-nowrap">
+                  Paid{" "}
+                  {new Date(bill.payment.paidDate).toLocaleDateString("en-IN", {
                     day: "numeric",
                     month: "short",
                   })}
                 </p>
+              ) : (
+                <div className="h-4" /> // Placeholder to maintain height
               )}
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {bill.status !== "paid" && (
-                  <DropdownMenuItem onClick={onMarkAsPaid}>
-                    <Check className="h-4 w-4 mr-2" />
-                    Mark as Paid
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem onClick={onEdit}>Edit</DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={onDelete}
-                  className="text-destructive focus:text-destructive"
-                >
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
+
+          {/* Actions menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 shrink-0 -mr-1"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {bill.status !== "paid" && (
+                <DropdownMenuItem onClick={onMarkAsPaid}>
+                  <Check className="h-4 w-4 mr-2" />
+                  Mark as Paid
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={onEdit}>Edit</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={onDelete}
+                className="text-destructive focus:text-destructive"
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
-        {/* Account info */}
+        {/* Account info footer */}
         {bill.account && (
-          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/50 text-xs text-muted-foreground">
-            <span>Pay from: {bill.account.name}</span>
+          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/30 text-xs text-muted-foreground">
+            <Wallet className="h-3.5 w-3.5" />
+            <span className="truncate">Pay from: {bill.account.name}</span>
           </div>
         )}
       </CardContent>
