@@ -88,6 +88,20 @@ export const SEED_CATEGORIES = [
       { id: "security", name: "Security Guard", icon: "ShieldCheck" },
     ],
   },
+  {
+    id: "family_support",
+    name: "Family Support",
+    icon: "Users",
+    subCategories: [
+      { id: "spouse_allowance", name: "Spouse/Wife Allowance", icon: "Heart" },
+      { id: "parents_support", name: "Parents Support", icon: "Users2" },
+      { id: "siblings_support", name: "Siblings Support", icon: "Users" },
+      { id: "children_allowance", name: "Children Allowance", icon: "Baby" },
+      { id: "family_allowance", name: "General Family Allowance", icon: "HandCoins" },
+      { id: "relatives_support", name: "Relatives Support", icon: "UserCheck" },
+      { id: "household_contribution", name: "Household Running Expenses", icon: "Home" },
+    ],
+  },
 
   // ============ WANTS ============
   {
