@@ -135,7 +135,7 @@ export function BillCard({
   return (
     <Card
       className={cn(
-        "border-border/50 transition-all hover:shadow-md overflow-hidden",
+        "border-border/50 transition-all hover:shadow-md overflow-hidden py-0 gap-0",
         bill.status === "overdue" && "border-destructive/50",
         bill.status === "due_today" && "border-orange-500/50",
         className
@@ -160,7 +160,7 @@ export function BillCard({
           <div className="flex-1 min-w-0 grid grid-cols-[1fr_auto] gap-x-3 gap-y-0.5 items-center">
             {/* Row 1: Name + Badge | Amount */}
             <div className="flex items-center gap-2 min-w-0">
-              <h3 className="font-semibold text-sm truncate max-w-[120px]">
+              <h3 className="font-semibold text-sm truncate max-w-[120px] md:max-w-[200px] lg:max-w-none">
                 {bill.name}
               </h3>
               <Badge
@@ -188,7 +188,7 @@ export function BillCard({
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               {bill.category && (
                 <>
-                  <span className="truncate max-w-[80px]">
+                  <span className="truncate max-w-[80px] md:max-w-[150px]">
                     {bill.category.name}
                   </span>
                   <span className="text-border">•</span>
