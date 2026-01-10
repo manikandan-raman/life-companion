@@ -53,6 +53,11 @@ export const liabilityTypeEnum = pgEnum("liability_type", [
   "other",
 ]);
 
+export const budgetItemTypeEnum = pgEnum("budget_item_type", [
+  "limit",    // Category spending limit
+  "payment",  // Specific payment/bill
+]);
+
 // Users table
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -301,6 +306,47 @@ export const billPayments = pgTable("bill_payments", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Monthly Budgets table - container for budget items per month
+export const monthlyBudgets = pgTable("monthly_budgets", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  month: integer("month").notNull(), // 1-12
+  year: integer("year").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Budget Items table - individual budget line items
+export const budgetItems = pgTable("budget_items", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  budgetId: uuid("budget_id")
+    .references(() => monthlyBudgets.id, { onDelete: "cascade" })
+    .notNull(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  itemType: budgetItemTypeEnum("item_type").notNull(),
+  categoryId: uuid("category_id")
+    .references(() => categories.id, { onDelete: "set null" }),
+  name: varchar("name", { length: 100 }).notNull(),
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+  dueDay: integer("due_day"), // 1-31, only for payment type
+  isRecurring: boolean("is_recurring").default(false),
+  isPaid: boolean("is_paid").default(false),
+  paidDate: date("paid_date"),
+  paidAmount: decimal("paid_amount", { precision: 15, scale: 2 }),
+  accountId: uuid("account_id")
+    .references(() => accounts.id, { onDelete: "set null" }),
+  transactionId: uuid("transaction_id")
+    .references(() => transactions.id, { onDelete: "set null" }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
@@ -313,6 +359,8 @@ export const usersRelations = relations(users, ({ many }) => ({
   liabilities: many(liabilities),
   networthSnapshots: many(networthSnapshots),
   recurringBills: many(recurringBills),
+  monthlyBudgets: many(monthlyBudgets),
+  budgetItems: many(budgetItems),
 }));
 
 export const accountsRelations = relations(accounts, ({ one, many }) => ({
@@ -331,6 +379,7 @@ export const categoriesRelations = relations(categories, ({ one, many }) => ({
   subCategories: many(subCategories),
   transactions: many(transactions),
   recurringBills: many(recurringBills),
+  budgetItems: many(budgetItems),
 }));
 
 export const subCategoriesRelations = relations(subCategories, ({ one, many }) => ({
@@ -464,6 +513,37 @@ export const billPaymentsRelations = relations(billPayments, ({ one }) => ({
   }),
 }));
 
+export const monthlyBudgetsRelations = relations(monthlyBudgets, ({ one, many }) => ({
+  user: one(users, {
+    fields: [monthlyBudgets.userId],
+    references: [users.id],
+  }),
+  items: many(budgetItems),
+}));
+
+export const budgetItemsRelations = relations(budgetItems, ({ one }) => ({
+  budget: one(monthlyBudgets, {
+    fields: [budgetItems.budgetId],
+    references: [monthlyBudgets.id],
+  }),
+  user: one(users, {
+    fields: [budgetItems.userId],
+    references: [users.id],
+  }),
+  category: one(categories, {
+    fields: [budgetItems.categoryId],
+    references: [categories.id],
+  }),
+  account: one(accounts, {
+    fields: [budgetItems.accountId],
+    references: [accounts.id],
+  }),
+  transaction: one(transactions, {
+    fields: [budgetItems.transactionId],
+    references: [transactions.id],
+  }),
+}));
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -510,8 +590,15 @@ export type NewRecurringBill = typeof recurringBills.$inferInsert;
 export type BillPayment = typeof billPayments.$inferSelect;
 export type NewBillPayment = typeof billPayments.$inferInsert;
 
+export type MonthlyBudget = typeof monthlyBudgets.$inferSelect;
+export type NewMonthlyBudget = typeof monthlyBudgets.$inferInsert;
+
+export type BudgetItem = typeof budgetItems.$inferSelect;
+export type NewBudgetItem = typeof budgetItems.$inferInsert;
+
 export type AccountType = (typeof accountTypeEnum.enumValues)[number];
 export type TransactionType = (typeof transactionTypeEnum.enumValues)[number];
 export type AssetType = (typeof assetTypeEnum.enumValues)[number];
 export type AssetSubtype = (typeof assetSubtypeEnum.enumValues)[number];
 export type LiabilityType = (typeof liabilityTypeEnum.enumValues)[number];
+export type BudgetItemType = (typeof budgetItemTypeEnum.enumValues)[number];

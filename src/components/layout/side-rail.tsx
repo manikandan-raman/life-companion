@@ -33,8 +33,8 @@ const navItems = [
     icon: ArrowUpDown,
   },
   {
-    href: "/bills",
-    label: "Bills",
+    href: "/budgets",
+    label: "Budgets",
     icon: Receipt,
   },
   {

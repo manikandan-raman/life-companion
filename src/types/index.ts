@@ -18,6 +18,9 @@ import type {
   LiabilityType,
   RecurringBill,
   BillPayment,
+  MonthlyBudget,
+  BudgetItem,
+  BudgetItemType,
 } from "@/db/schema";
 
 // Re-export database types
@@ -41,6 +44,9 @@ export type {
   LiabilityType,
   RecurringBill,
   BillPayment,
+  MonthlyBudget,
+  BudgetItem,
+  BudgetItemType,
 };
 
 // Category with nested sub-categories
@@ -289,6 +295,61 @@ export interface BillPaymentFormData {
 // Bill status type
 export type BillStatus = "paid" | "overdue" | "due_today" | "upcoming" | "pending";
 
+// Budget types with relations
+export interface BudgetItemWithRelations extends BudgetItem {
+  category: Category | null;
+  account: Account | null;
+  transaction: Transaction | null;
+}
+
+export interface MonthlyBudgetWithRelations extends MonthlyBudget {
+  items: BudgetItemWithRelations[];
+}
+
+// Budget item status type
+export type BudgetItemStatus = "paid" | "unpaid" | "overdue" | "due_today" | "upcoming";
+
+// Budget summary for a month
+export interface BudgetSummary {
+  month: number;
+  year: number;
+  totalBudgeted: number;
+  totalSpent: number;
+  remaining: number;
+  limits: {
+    total: number;
+    count: number;
+  };
+  payments: {
+    total: number;
+    paid: number;
+    unpaid: number;
+    overdue: number;
+    paidAmount: number;
+    unpaidAmount: number;
+  };
+}
+
+// Budget item form data
+export interface BudgetItemFormData {
+  itemType: BudgetItemType;
+  categoryId?: string | null;
+  name: string;
+  amount: number;
+  dueDay?: number | null;
+  isRecurring?: boolean;
+  accountId?: string | null;
+  notes?: string | null;
+}
+
+// Budget item payment form data
+export interface BudgetItemPaymentFormData {
+  type: "needs" | "wants" | "savings" | "investments";
+  paidDate: Date;
+  paidAmount: number;
+  accountId: string;
+}
+
 // Transaction type labels for UI
 export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
   income: "Income",
@@ -296,4 +357,10 @@ export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
   wants: "Wants",
   savings: "Savings",
   investments: "Investments",
+};
+
+// Budget item type labels for UI
+export const BUDGET_ITEM_TYPE_LABELS: Record<BudgetItemType, string> = {
+  limit: "Spending Limit",
+  payment: "Payment",
 };
