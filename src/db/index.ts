@@ -7,7 +7,6 @@ dotenv.config();
 
 // Connection string from environment variable
 const connectionString = process.env.DATABASE_URL!;
-console.log("🚀 Connection string:", connectionString);
 
 // Create postgres client
 const client = postgres(connectionString, {

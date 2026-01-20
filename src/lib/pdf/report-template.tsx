@@ -50,6 +50,16 @@ export interface ReportCategory {
   type: string;
 }
 
+export interface ReportCategoryLimit {
+  id: string;
+  name: string;
+  categoryName: string;
+  budgetAmount: number;
+  spentAmount: number;
+  percentage: number;
+  isOverBudget: boolean;
+}
+
 export interface ReportSummary {
   totalIncome: number;
   totalExpense: number;
@@ -66,6 +76,7 @@ export interface ReportData {
   summary: ReportSummary;
   categories: ReportCategory[];
   transactions: ReportTransaction[];
+  categoryLimits: ReportCategoryLimit[];
   userName: string;
 }
 
@@ -314,6 +325,94 @@ function BudgetProgressSection({ summary }: { summary: ReportSummary }) {
             </View>
           );
         })}
+      </View>
+    </View>
+  );
+}
+
+// Category Limits Section
+function CategoryLimitsSection({
+  categoryLimits,
+}: {
+  categoryLimits: ReportCategoryLimit[];
+}) {
+  if (categoryLimits.length === 0) {
+    return null;
+  }
+
+  const withinBudget = categoryLimits.filter((l) => !l.isOverBudget).length;
+  const overBudget = categoryLimits.filter((l) => l.isOverBudget).length;
+
+  return (
+    <View style={styles.section} wrap={false}>
+      <Text style={styles.sectionTitle}>Category Spending Limits</Text>
+      <View style={styles.table}>
+        {/* Header */}
+        <View style={styles.tableHeader}>
+          <Text style={[styles.tableHeaderCell, { width: "30%" }]}>Category</Text>
+          <Text style={[styles.tableHeaderCell, { width: "20%", textAlign: "right" }]}>Budget</Text>
+          <Text style={[styles.tableHeaderCell, { width: "20%", textAlign: "right" }]}>Spent</Text>
+          <Text style={[styles.tableHeaderCell, { width: "15%", textAlign: "right" }]}>%</Text>
+          <Text style={[styles.tableHeaderCell, { width: "15%", textAlign: "center" }]}>Status</Text>
+        </View>
+        {/* Rows */}
+        {categoryLimits.map((limit, index) => (
+          <View
+            key={limit.id}
+            style={index % 2 === 1 ? [styles.tableRow, styles.tableRowAlt] : styles.tableRow}
+            wrap={false}
+          >
+            <View style={{ width: "30%" }}>
+              <Text style={styles.tableCell}>{limit.name}</Text>
+              <Text style={{ fontSize: 7, color: COLORS.textMuted }}>{limit.categoryName}</Text>
+            </View>
+            <View style={{ width: "20%" }}>
+              <Text style={[styles.tableCell, { textAlign: "right" }]}>
+                {formatCurrency(limit.budgetAmount)}
+              </Text>
+            </View>
+            <View style={{ width: "20%" }}>
+              <Text
+                style={[
+                  styles.tableCell,
+                  { textAlign: "right", color: limit.isOverBudget ? COLORS.danger : COLORS.text },
+                ]}
+              >
+                {formatCurrency(limit.spentAmount)}
+              </Text>
+            </View>
+            <View style={{ width: "15%" }}>
+              <Text
+                style={[
+                  styles.tableCell,
+                  { textAlign: "right", color: limit.isOverBudget ? COLORS.danger : COLORS.text },
+                ]}
+              >
+                {limit.percentage}%
+              </Text>
+            </View>
+            <View style={{ width: "15%" }}>
+              <Text
+                style={[
+                  styles.tableCell,
+                  {
+                    textAlign: "center",
+                    fontSize: 7,
+                    color: limit.isOverBudget ? COLORS.danger : COLORS.success,
+                  },
+                ]}
+              >
+                {limit.isOverBudget ? "Over" : "OK"}
+              </Text>
+            </View>
+          </View>
+        ))}
+      </View>
+      {/* Summary */}
+      <View style={{ marginTop: 8, flexDirection: "row", justifyContent: "flex-end" }}>
+        <Text style={{ fontSize: 8, color: COLORS.textMuted }}>
+          {withinBudget} within budget, {overBudget} over budget
+        </Text>
       </View>
     </View>
   );
@@ -614,6 +713,9 @@ export function MonthlyReportDocument({ data }: { data: ReportData }) {
         <ReportHeader month={data.month} year={data.year} userName={data.userName} />
         <SummarySection summary={data.summary} />
         <BudgetProgressSection summary={data.summary} />
+        {data.categoryLimits.length > 0 && (
+          <CategoryLimitsSection categoryLimits={data.categoryLimits} />
+        )}
         <SpendingBreakdownSection summary={data.summary} categories={data.categories} />
         <InsightsSection summary={data.summary} categories={data.categories} />
         <ReportFooter />

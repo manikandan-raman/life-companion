@@ -10,6 +10,7 @@ import { TransactionCard } from "@/components/finance/transaction-card";
 import { MonthPicker } from "@/components/finance/month-picker";
 import { SpendingBreakdown } from "@/components/finance/spending-breakdown";
 import { BudgetWidget } from "@/components/dashboard/budget-widget";
+import { CategoryLimitsWidget } from "@/components/dashboard/category-limits-widget";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSummary } from "@/hooks/use-transactions";
@@ -270,15 +271,20 @@ export function DashboardClient() {
           </div>
         </div>
 
-        {/* Budget Widget */}
+        {/* Category Limits Widget */}
         <div className="animate-card-enter" style={{ animationDelay: "300ms" }}>
+          <CategoryLimitsWidget />
+        </div>
+
+        {/* Budget Widget */}
+        <div className="animate-card-enter" style={{ animationDelay: "350ms" }}>
           <BudgetWidget />
         </div>
 
         {/* Recent Transactions */}
         <div
           className="space-y-3 animate-card-enter"
-          style={{ animationDelay: "350ms" }}
+          style={{ animationDelay: "400ms" }}
         >
           <div className="flex items-center justify-between px-1">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
@@ -325,7 +331,7 @@ export function DashboardClient() {
                 <TransactionCard
                   key={transaction.id}
                   className="animate-card-enter"
-                  style={{ animationDelay: `${400 + index * 50}ms` }}
+                  style={{ animationDelay: `${450 + index * 50}ms` }}
                   transaction={{
                     id: transaction.id,
                     userId: "",

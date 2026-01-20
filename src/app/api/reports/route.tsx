@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
-import { db, transactions, users, budgetGoals } from "@/db";
-import { eq, and, gte, lte } from "drizzle-orm";
+import { db, transactions, users, budgetGoals, monthlyBudgets, budgetItems, categories } from "@/db";
+import { eq, and, gte, lte, sum } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
 import { z } from "zod";
-import { MonthlyReportDocument, type ReportData, type ReportCategory } from "@/lib/pdf/report-template";
+import { MonthlyReportDocument, type ReportData, type ReportCategory, type ReportCategoryLimit } from "@/lib/pdf/report-template";
 
 const querySchema = z.object({
   month: z.coerce.number().min(1).max(12),
@@ -63,6 +63,66 @@ export async function GET(request: Request) {
     const savingsPercentage = budgetGoal
       ? parseFloat(budgetGoal.savingsPercentage)
       : DEFAULT_SAVINGS_PERCENTAGE;
+
+    // Fetch monthly budget with category limits
+    const monthlyBudget = await db.query.monthlyBudgets.findFirst({
+      where: and(
+        eq(monthlyBudgets.userId, userId),
+        eq(monthlyBudgets.month, month),
+        eq(monthlyBudgets.year, year)
+      ),
+    });
+
+    // Fetch category limits if monthly budget exists
+    let categoryLimits: ReportCategoryLimit[] = [];
+    if (monthlyBudget) {
+      const limitItems = await db.query.budgetItems.findMany({
+        where: and(
+          eq(budgetItems.budgetId, monthlyBudget.id),
+          eq(budgetItems.itemType, "limit")
+        ),
+        with: {
+          category: true,
+        },
+      });
+
+      // Get spending by category for this month
+      const spendingByCategory = await db
+        .select({
+          categoryId: transactions.categoryId,
+          total: sum(transactions.amount),
+        })
+        .from(transactions)
+        .where(
+          and(
+            eq(transactions.userId, userId),
+            gte(transactions.transactionDate, startDateStr),
+            lte(transactions.transactionDate, endDateStr)
+          )
+        )
+        .groupBy(transactions.categoryId);
+
+      const spendingMap = new Map(
+        spendingByCategory.map((s) => [s.categoryId, parseFloat(String(s.total || 0))])
+      );
+
+      // Prepare category limits data
+      categoryLimits = limitItems.map((item) => {
+        const budgetAmount = parseFloat(String(item.amount));
+        const spentAmount = item.categoryId ? spendingMap.get(item.categoryId) || 0 : 0;
+        const percentage = budgetAmount > 0 ? Math.round((spentAmount / budgetAmount) * 100) : 0;
+        
+        return {
+          id: item.id,
+          name: item.name,
+          categoryName: item.category?.name || "Uncategorized",
+          budgetAmount: Math.round(budgetAmount * 100) / 100,
+          spentAmount: Math.round(spentAmount * 100) / 100,
+          percentage,
+          isOverBudget: spentAmount > budgetAmount,
+        };
+      });
+    }
 
     // Fetch all transactions for the period with categories
     const transactionList = await db.query.transactions.findMany({
@@ -195,6 +255,7 @@ export async function GET(request: Request) {
       },
       categories,
       transactions: reportTransactions,
+      categoryLimits,
     };
 
     // Generate PDF
