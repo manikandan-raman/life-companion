@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, Settings, Sun, Moon } from "lucide-react";
+import { LogOut, User, Settings, Sun, Moon, FileText } from "lucide-react";
 import Link from "next/link";
 
 interface HeaderProps {
@@ -126,6 +126,12 @@ export function Header({ title, action, leftAction, variant = "default" }: Heade
                     Categories
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/reports" className="cursor-pointer">
+                    <FileText className="mr-2 h-4 w-4" />
+                    Reports
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-destructive focus:text-destructive cursor-pointer"
@@ -209,6 +215,12 @@ export function Header({ title, action, leftAction, variant = "default" }: Heade
                 <Link href="/categories" className="cursor-pointer">
                   <Settings className="mr-2 h-4 w-4" />
                   Categories
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/reports" className="cursor-pointer">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Reports
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
