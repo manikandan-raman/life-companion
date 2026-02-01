@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
+import { serializeDateFields } from "@/lib/utils";
 import type {
   TransactionWithRelations,
   PaginatedResponse,
@@ -217,9 +218,10 @@ export function useCreateTransaction() {
 
   return useMutation({
     mutationFn: async (data: TransactionFormValues) => {
+      const serialized = serializeDateFields(data, ["transactionDate"]);
       return api.post<{ data: TransactionWithRelations; message: string }>(
         "/api/transactions",
-        data
+        serialized
       );
     },
     onSuccess: () => {
@@ -241,9 +243,10 @@ export function useUpdateTransaction() {
       id: string;
       data: Partial<TransactionFormValues>;
     }) => {
+      const serialized = serializeDateFields(data, ["transactionDate"]);
       return api.patch<{ data: TransactionWithRelations; message: string }>(
         `/api/transactions/${id}`,
-        data
+        serialized
       );
     },
     onSuccess: () => {

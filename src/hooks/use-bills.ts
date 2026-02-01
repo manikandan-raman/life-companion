@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
+import { serializeDateFields } from "@/lib/utils";
 import type {
   RecurringBill,
   BillPayment,
@@ -178,9 +179,10 @@ export function usePayBill() {
 
   return useMutation({
     mutationFn: async ({ billId, month, year, data }: PayBillParams) => {
+      const serialized = serializeDateFields(data, ["paidDate"]);
       return api.post<{ data: BillPayment; message: string }>(
         `/api/bills/${billId}/pay?month=${month}&year=${year}`,
-        data
+        serialized
       );
     },
     onSuccess: () => {

@@ -16,3 +16,21 @@ export function formatDateToString(date: Date): string {
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
+
+/**
+ * Serializes Date fields in an object to YYYY-MM-DD strings for API calls.
+ * This prevents timezone shifts when JSON.stringify converts Dates to UTC ISO strings.
+ */
+export function serializeDateFields<T extends object>(
+  data: T,
+  dateFields: (keyof T)[]
+): T {
+  const result = { ...data } as Record<string, unknown>;
+  for (const field of dateFields) {
+    const value = result[field as string];
+    if (value instanceof Date) {
+      result[field as string] = formatDateToString(value);
+    }
+  }
+  return result as T;
+}

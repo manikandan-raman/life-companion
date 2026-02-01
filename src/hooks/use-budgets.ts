@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
+import { serializeDateFields } from "@/lib/utils";
 import type {
   MonthlyBudget,
   BudgetItem,
@@ -149,9 +150,10 @@ export function usePayBudgetItem() {
       itemId: string;
       data: BudgetItemPaymentFormValues;
     }) => {
+      const serialized = serializeDateFields(data, ["paidDate"]);
       return api.post<{ data: BudgetItemWithRelations; transaction: Transaction; message: string }>(
         `/api/budgets/items/${itemId}/pay`,
-        data
+        serialized
       );
     },
     onSuccess: () => {

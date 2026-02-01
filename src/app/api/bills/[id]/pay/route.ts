@@ -3,7 +3,7 @@ import { db, recurringBills, billPayments, transactions, accounts } from "@/db";
 import { eq, and } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
 import { billPaymentSchema } from "@/schemas/bill";
-import { format } from "date-fns";
+import { formatDateToString } from "@/lib/utils";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -78,8 +78,10 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
 
-    // Format date in local timezone to avoid UTC offset issues
-    const paidDateStr = format(data.paidDate, "yyyy-MM-dd");
+    // Format date - the date is already a string from client-side serialization
+    const paidDateStr = typeof data.paidDate === "string"
+      ? data.paidDate
+      : formatDateToString(data.paidDate);
 
     // Create a transaction for this payment
     const [newTransaction] = await db

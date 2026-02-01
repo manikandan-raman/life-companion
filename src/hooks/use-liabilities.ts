@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
+import { serializeDateFields } from "@/lib/utils";
 import type { Liability, LiabilityWithPayments } from "@/types";
 import type {
   LiabilityFormData,
@@ -41,9 +42,10 @@ export function useCreateLiability() {
 
   return useMutation({
     mutationFn: async (data: LiabilityFormData) => {
+      const serialized = serializeDateFields(data, ["startDate", "endDate"]);
       return api.post<{ data: Liability; message: string }>(
         "/api/liabilities",
-        data
+        serialized
       );
     },
     onSuccess: () => {
@@ -65,9 +67,10 @@ export function useUpdateLiability() {
       id: string;
       data: LiabilityFormData;
     }) => {
+      const serialized = serializeDateFields(data, ["startDate", "endDate"]);
       return api.put<{ data: Liability; message: string }>(
         `/api/liabilities/${id}`,
-        data
+        serialized
       );
     },
     onSuccess: (_, variables) => {
@@ -105,9 +108,10 @@ export function useAddLiabilityPayment() {
       liabilityId: string;
       data: Omit<LiabilityPaymentFormData, "liabilityId">;
     }) => {
+      const serialized = serializeDateFields(data, ["paymentDate"]);
       return api.post<{ data: unknown; message: string }>(
         `/api/liabilities/${liabilityId}`,
-        data
+        serialized
       );
     },
     onSuccess: (_, variables) => {
