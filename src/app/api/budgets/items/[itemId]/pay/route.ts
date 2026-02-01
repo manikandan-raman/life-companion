@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db, budgetItems, accounts, transactions, monthlyBudgets } from "@/db";
 import { eq, and } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
+import { formatDateToString } from "@/lib/utils";
 import { budgetItemPaymentSchema } from "@/schemas/budget";
 
 // POST - Mark a budget payment item as paid
@@ -64,7 +65,7 @@ export async function POST(
     // Create transaction for the payment
     const budget = existingItem.budget as { month: number; year: number };
     const transactionDate = new Date(data.paidDate);
-    const formattedDate = transactionDate.toISOString().split("T")[0];
+    const formattedDate = formatDateToString(transactionDate);
 
     const [newTransaction] = await db
       .insert(transactions)

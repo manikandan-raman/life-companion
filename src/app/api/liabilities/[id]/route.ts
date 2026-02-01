@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db, liabilities, liabilityPayments } from "@/db";
 import { eq, and } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
+import { formatDateToString } from "@/lib/utils";
 import { liabilitySchema, liabilityPaymentSchema } from "@/schemas/liability";
 
 // GET - Get a single liability with payments
@@ -85,9 +86,9 @@ export async function PUT(
         outstandingBalance: String(data.outstandingBalance),
         interestRate: String(data.interestRate),
         emiAmount: data.emiAmount ? String(data.emiAmount) : null,
-        startDate: data.startDate.toISOString().split("T")[0],
+        startDate: formatDateToString(data.startDate),
         endDate: data.endDate
-          ? data.endDate.toISOString().split("T")[0]
+          ? formatDateToString(data.endDate)
           : null,
         notes: data.notes,
         color: data.color,
@@ -196,7 +197,7 @@ export async function POST(
         amount: String(data.amount),
         principalPaid: data.principalPaid ? String(data.principalPaid) : null,
         interestPaid: data.interestPaid ? String(data.interestPaid) : null,
-        paymentDate: data.paymentDate.toISOString().split("T")[0],
+        paymentDate: formatDateToString(data.paymentDate),
         notes: data.notes,
       })
       .returning();

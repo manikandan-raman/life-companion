@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db, transactions } from "@/db";
 import { eq, and, gte, lte } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
+import { formatDateToString } from "@/lib/utils";
 import { z } from "zod";
 
 const querySchema = z.object({
@@ -44,8 +45,8 @@ export async function GET(request: Request) {
       endDate: searchParams.get("endDate"),
     });
 
-    const startDateStr = params.startDate.toISOString().split("T")[0];
-    const endDateStr = params.endDate.toISOString().split("T")[0];
+    const startDateStr = formatDateToString(params.startDate);
+    const endDateStr = formatDateToString(params.endDate);
 
     // Fetch all expense transactions for the period (exclude income)
     const transactionList = await db.query.transactions.findMany({

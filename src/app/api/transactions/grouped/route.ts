@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db, transactions } from "@/db";
 import { eq, desc, asc, and, gte, lte, ilike, or } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
+import { formatDateToString } from "@/lib/utils";
 import { z } from "zod";
 
 const groupedQuerySchema = z.object({
@@ -71,8 +72,8 @@ export async function GET(request: Request) {
       sortOrder: searchParams.get("sortOrder") || "desc",
     });
 
-    const startDateStr = params.startDate.toISOString().split("T")[0];
-    const endDateStr = params.endDate.toISOString().split("T")[0];
+    const startDateStr = formatDateToString(params.startDate);
+    const endDateStr = formatDateToString(params.endDate);
 
     // Build where conditions
     const conditions = [

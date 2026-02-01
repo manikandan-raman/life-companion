@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db, accounts, assets, liabilities, networthSnapshots } from "@/db";
 import { eq, and } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
+import { formatDateToString } from "@/lib/utils";
 import type { NetWorthBreakdown } from "@/types";
 
 // POST - Create a snapshot of current net worth
@@ -92,7 +93,7 @@ export async function POST() {
     const netWorth = totalAssets - totalLiabilities;
 
     // Create snapshot
-    const today = new Date().toISOString().split("T")[0];
+    const today = formatDateToString(new Date());
 
     const [snapshot] = await db
       .insert(networthSnapshots)

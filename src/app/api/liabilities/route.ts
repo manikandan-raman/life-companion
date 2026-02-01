@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db, liabilities } from "@/db";
 import { eq, and } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
+import { formatDateToString } from "@/lib/utils";
 import { liabilitySchema } from "@/schemas/liability";
 
 // GET - List all liabilities for the user
@@ -64,9 +65,9 @@ export async function POST(request: Request) {
         outstandingBalance: String(data.outstandingBalance),
         interestRate: String(data.interestRate),
         emiAmount: data.emiAmount ? String(data.emiAmount) : null,
-        startDate: data.startDate.toISOString().split("T")[0],
+        startDate: formatDateToString(data.startDate),
         endDate: data.endDate
-          ? data.endDate.toISOString().split("T")[0]
+          ? formatDateToString(data.endDate)
           : null,
         notes: data.notes,
         color: data.color,

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db, assets, assetValuations } from "@/db";
 import { eq, and } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
+import { formatDateToString } from "@/lib/utils";
 import { assetSchema, assetValuationSchema } from "@/schemas/asset";
 
 // GET - Get a single asset with valuations
@@ -79,10 +80,10 @@ export async function PUT(
         currentValue: String(data.currentValue),
         purchaseValue: String(data.purchaseValue),
         purchaseDate: data.purchaseDate
-          ? data.purchaseDate.toISOString().split("T")[0]
+          ? formatDateToString(data.purchaseDate)
           : null,
         maturityDate: data.maturityDate
-          ? data.maturityDate.toISOString().split("T")[0]
+          ? formatDateToString(data.maturityDate)
           : null,
         interestRate: data.interestRate ? String(data.interestRate) : null,
         notes: data.notes,
@@ -184,7 +185,7 @@ export async function POST(
       .values({
         assetId: id,
         value: String(data.value),
-        valuationDate: data.valuationDate.toISOString().split("T")[0],
+        valuationDate: formatDateToString(data.valuationDate),
         notes: data.notes,
       })
       .returning();

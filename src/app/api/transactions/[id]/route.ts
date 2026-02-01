@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db, transactions, categories, accounts, tags, transactionTags, subCategories } from "@/db";
 import { eq, and, inArray } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
+import { formatDateToString } from "@/lib/utils";
 import { transactionSchema } from "@/schemas/transaction";
 
 interface RouteParams {
@@ -167,7 +168,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       updateData.accountId = data.accountId || null;
     }
     if (data.transactionDate !== undefined) {
-      updateData.transactionDate = data.transactionDate.toISOString().split("T")[0];
+      updateData.transactionDate = formatDateToString(data.transactionDate);
     }
 
     // Update transaction

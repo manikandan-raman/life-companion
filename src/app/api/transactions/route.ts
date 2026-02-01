@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db, transactions, categories, accounts, tags, transactionTags, subCategories } from "@/db";
 import { eq, desc, asc, and, gte, lte, sql, inArray, ilike, or } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
+import { formatDateToString } from "@/lib/utils";
 import { transactionSchema, transactionFilterSchema } from "@/schemas/transaction";
 
 // GET - List transactions with filters
@@ -29,10 +30,10 @@ export async function GET(request: Request) {
     const conditions = [eq(transactions.userId, userId)];
 
     if (params.startDate) {
-      conditions.push(gte(transactions.transactionDate, params.startDate.toISOString().split("T")[0]));
+      conditions.push(gte(transactions.transactionDate, formatDateToString(params.startDate)));
     }
     if (params.endDate) {
-      conditions.push(lte(transactions.transactionDate, params.endDate.toISOString().split("T")[0]));
+      conditions.push(lte(transactions.transactionDate, formatDateToString(params.endDate)));
     }
     if (params.categoryId) {
       conditions.push(eq(transactions.categoryId, params.categoryId));
@@ -203,7 +204,7 @@ export async function POST(request: Request) {
         categoryId: data.categoryId,
         subCategoryId: data.subCategoryId || null,
         accountId: data.accountId || null,
-        transactionDate: data.transactionDate.toISOString().split("T")[0],
+        transactionDate: formatDateToString(data.transactionDate),
       })
       .returning();
 

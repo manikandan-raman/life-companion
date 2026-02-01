@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db, transactions, budgetGoals } from "@/db";
 import { eq, and, gte, lte } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
+import { formatDateToString } from "@/lib/utils";
 import { z } from "zod";
 
 const summaryQuerySchema = z.object({
@@ -73,8 +74,8 @@ export async function GET(request: Request) {
       endDate: searchParams.get("endDate"),
     });
 
-    const startDateStr = params.startDate.toISOString().split("T")[0];
-    const endDateStr = params.endDate.toISOString().split("T")[0];
+    const startDateStr = formatDateToString(params.startDate);
+    const endDateStr = formatDateToString(params.endDate);
 
     // Extract month and year from start date for budget goal lookup
     const month = params.startDate.getMonth() + 1; // getMonth() is 0-indexed

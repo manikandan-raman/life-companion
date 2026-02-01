@@ -3,6 +3,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { db, transactions, users, budgetGoals, monthlyBudgets, budgetItems, categories } from "@/db";
 import { eq, and, gte, lte, sum } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
+import { formatDateToString } from "@/lib/utils";
 import { z } from "zod";
 import { MonthlyReportDocument, type ReportData, type ReportCategory, type ReportCategoryLimit } from "@/lib/pdf/report-template";
 
@@ -32,8 +33,8 @@ export async function GET(request: Request) {
     // Get date range for the month
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0); // Last day of month
-    const startDateStr = startDate.toISOString().split("T")[0];
-    const endDateStr = endDate.toISOString().split("T")[0];
+    const startDateStr = formatDateToString(startDate);
+    const endDateStr = formatDateToString(endDate);
 
     // Fetch user data
     const user = await db.query.users.findFirst({

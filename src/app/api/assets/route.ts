@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db, assets } from "@/db";
 import { eq, and } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
+import { formatDateToString } from "@/lib/utils";
 import { assetSchema } from "@/schemas/asset";
 
 // GET - List all assets for the user
@@ -61,10 +62,10 @@ export async function POST(request: Request) {
         currentValue: String(data.currentValue),
         purchaseValue: String(data.purchaseValue),
         purchaseDate: data.purchaseDate
-          ? data.purchaseDate.toISOString().split("T")[0]
+          ? formatDateToString(data.purchaseDate)
           : null,
         maturityDate: data.maturityDate
-          ? data.maturityDate.toISOString().split("T")[0]
+          ? formatDateToString(data.maturityDate)
           : null,
         interestRate: data.interestRate ? String(data.interestRate) : null,
         notes: data.notes,
