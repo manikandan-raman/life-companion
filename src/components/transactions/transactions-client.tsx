@@ -169,7 +169,17 @@ export function TransactionsClient() {
 
   return (
     <div className="min-h-screen">
-      <Header title="Transactions" />
+      <Header
+        title="Transactions"
+        action={
+          <Link href="/transactions/new" className="hidden md:inline-flex">
+            <Button size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Transaction
+            </Button>
+          </Link>
+        }
+      />
 
       <div className="px-4 py-6 md:px-6 space-y-5 max-w-4xl mx-auto">
         {/* Filters */}

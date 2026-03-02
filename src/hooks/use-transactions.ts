@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
-import { serializeDateFields } from "@/lib/utils";
+import { serializeDateFields, formatDateToString } from "@/lib/utils";
 import type {
   TransactionWithRelations,
   PaginatedResponse,
@@ -52,8 +52,8 @@ export function useTransactions(options: UseTransactionsOptions = {}) {
     ],
     queryFn: async () => {
       const params: Record<string, string | number> = { page, pageSize, sortBy, sortOrder };
-      if (startDate) params.startDate = startDate.toISOString();
-      if (endDate) params.endDate = endDate.toISOString();
+      if (startDate) params.startDate = formatDateToString(startDate);
+      if (endDate) params.endDate = formatDateToString(endDate);
       if (categoryId) params.categoryId = categoryId;
       if (subCategoryId) params.subCategoryId = subCategoryId;
       if (type) params.type = type;
@@ -125,12 +125,12 @@ export function useSummary(options: UseSummaryOptions) {
   const { startDate, endDate } = options;
 
   return useQuery({
-    queryKey: ["summary", { startDate: startDate.toISOString(), endDate: endDate.toISOString() }],
+    queryKey: ["summary", { startDate: formatDateToString(startDate), endDate: formatDateToString(endDate) }],
     queryFn: async () => {
       return api.get<SummaryData>("/api/summary", {
         params: {
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString(),
+          startDate: formatDateToString(startDate),
+          endDate: formatDateToString(endDate),
         },
       });
     },
@@ -194,12 +194,12 @@ export function useGroupedTransactions(options: UseGroupedTransactionsOptions) {
     queryKey: [
       "transactions",
       "grouped",
-      { startDate: startDate.toISOString(), endDate: endDate.toISOString(), categoryId, subCategoryId, type, accountId, search, sortOrder },
+      { startDate: formatDateToString(startDate), endDate: formatDateToString(endDate), categoryId, subCategoryId, type, accountId, search, sortOrder },
     ],
     queryFn: async () => {
       const params: Record<string, string> = {
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString(),
+        startDate: formatDateToString(startDate),
+        endDate: formatDateToString(endDate),
         sortOrder,
       };
       if (categoryId) params.categoryId = categoryId;

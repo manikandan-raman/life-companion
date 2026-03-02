@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
+import { formatDateToString } from "@/lib/utils";
 
 export interface SubCategorySpending {
   id: string;
@@ -37,13 +38,13 @@ export function useSpendingBreakdown(options: UseSpendingBreakdownOptions) {
   return useQuery({
     queryKey: [
       "spending-breakdown",
-      { startDate: startDate.toISOString(), endDate: endDate.toISOString() },
+      { startDate: formatDateToString(startDate), endDate: formatDateToString(endDate) },
     ],
     queryFn: async () => {
       return api.get<SpendingBreakdownData>("/api/summary/spending-breakdown", {
         params: {
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString(),
+          startDate: formatDateToString(startDate),
+          endDate: formatDateToString(endDate),
         },
       });
     },
