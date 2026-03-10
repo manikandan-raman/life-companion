@@ -16,7 +16,7 @@ function BudgetsSkeleton() {
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4">
           <Skeleton className="h-10 w-48" />
-          <Skeleton className="h-10 w-[160px]" />
+          <Skeleton className="h-10 w-40" />
         </div>
 
         {/* Summary Cards */}
@@ -44,4 +44,3 @@ export default function BudgetsPage() {
     </Suspense>
   );
 }
-

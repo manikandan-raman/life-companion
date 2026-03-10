@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Target, Receipt, AlertCircle, Check, Clock } from "lucide-react";
+import { Plus, Target, Receipt, AlertCircle, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -38,8 +38,11 @@ import {
 export function BudgetsClient() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<BudgetItemWithRelations | null>(null);
-  const [payingItem, setPayingItem] = useState<BudgetItemWithRelations | null>(null);
+  const [editingItem, setEditingItem] =
+    useState<BudgetItemWithRelations | null>(null);
+  const [payingItem, setPayingItem] = useState<BudgetItemWithRelations | null>(
+    null,
+  );
   const [typeFilter, setTypeFilter] = useState<string>("all");
 
   const month = selectedMonth.getMonth() + 1;
@@ -48,7 +51,8 @@ export function BudgetsClient() {
   const { data: budgetData, isLoading } = useBudget({
     month,
     year,
-    itemType: typeFilter === "all" ? undefined : (typeFilter as "limit" | "payment"),
+    itemType:
+      typeFilter === "all" ? undefined : (typeFilter as "limit" | "payment"),
   });
 
   const createItem = useCreateBudgetItem();
@@ -124,7 +128,7 @@ export function BudgetsClient() {
         <div className="flex flex-col sm:flex-row gap-4">
           <MonthPicker value={selectedMonth} onChange={setSelectedMonth} />
           <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-[160px]">
+            <SelectTrigger className="w-40">
               <SelectValue placeholder="Filter by type" />
             </SelectTrigger>
             <SelectContent>
@@ -142,68 +146,71 @@ export function BudgetsClient() {
               <Skeleton key={i} className="h-24 rounded-xl" />
             ))}
           </div>
-        ) : summary && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                  <Target className="h-4 w-4" />
-                  Budgeted
-                </div>
-                <p className="text-2xl font-bold mt-1">
-                  {formatCurrency(summary.limits.total)}
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {summary.limits.count} limit{summary.limits.count !== 1 ? "s" : ""}
-                </p>
-              </CardContent>
-            </Card>
+        ) : (
+          summary && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                    <Target className="h-4 w-4" />
+                    Budgeted
+                  </div>
+                  <p className="text-2xl font-bold mt-1">
+                    {formatCurrency(summary.limits.total)}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {summary.limits.count} limit
+                    {summary.limits.count !== 1 ? "s" : ""}
+                  </p>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                  <Receipt className="h-4 w-4" />
-                  Payments Due
-                </div>
-                <p className="text-2xl font-bold mt-1">
-                  {formatCurrency(summary.payments.unpaidAmount)}
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {summary.payments.unpaid} pending
-                </p>
-              </CardContent>
-            </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                    <Receipt className="h-4 w-4" />
+                    Payments Due
+                  </div>
+                  <p className="text-2xl font-bold mt-1">
+                    {formatCurrency(summary.payments.unpaidAmount)}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {summary.payments.unpaid} pending
+                  </p>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                  <Check className="h-4 w-4" />
-                  Paid
-                </div>
-                <p className="text-2xl font-bold mt-1 text-green-600">
-                  {formatCurrency(summary.payments.paidAmount)}
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {summary.payments.paid} paid
-                </p>
-              </CardContent>
-            </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                    <Check className="h-4 w-4" />
+                    Paid
+                  </div>
+                  <p className="text-2xl font-bold mt-1 text-green-600">
+                    {formatCurrency(summary.payments.paidAmount)}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {summary.payments.paid} paid
+                  </p>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-destructive text-sm">
-                  <AlertCircle className="h-4 w-4" />
-                  Overdue
-                </div>
-                <p className="text-2xl font-bold mt-1 text-destructive">
-                  {summary.payments.overdue}
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  payments overdue
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-destructive text-sm">
+                    <AlertCircle className="h-4 w-4" />
+                    Overdue
+                  </div>
+                  <p className="text-2xl font-bold mt-1 text-destructive">
+                    {summary.payments.overdue}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    payments overdue
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )
         )}
 
         {/* Budget Items List */}
@@ -218,7 +225,9 @@ export function BudgetsClient() {
             <Card>
               <CardContent className="p-12 text-center">
                 <Target className="h-12 w-12 mx-auto text-muted-foreground/50" />
-                <h3 className="mt-4 text-lg font-medium">No budget items yet</h3>
+                <h3 className="mt-4 text-lg font-medium">
+                  No budget items yet
+                </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Add spending limits and payments to track your monthly budget
                 </p>
@@ -234,51 +243,53 @@ export function BudgetsClient() {
           ) : (
             <>
               {/* Spending Limits Section */}
-              {(typeFilter === "all" || typeFilter === "limit") && limits.length > 0 && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 px-1">
-                    <Target className="h-4 w-4 text-muted-foreground" />
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                      Spending Limits
-                    </h3>
-                    <span className="text-xs text-muted-foreground">
-                      ({limits.length})
-                    </span>
+              {(typeFilter === "all" || typeFilter === "limit") &&
+                limits.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 px-1">
+                      <Target className="h-4 w-4 text-muted-foreground" />
+                      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                        Spending Limits
+                      </h3>
+                      <span className="text-xs text-muted-foreground">
+                        ({limits.length})
+                      </span>
+                    </div>
+                    {limits.map((item) => (
+                      <BudgetItemCard
+                        key={item.id}
+                        item={item}
+                        onEdit={() => setEditingItem(item)}
+                        onDelete={() => handleDeleteItem(item)}
+                      />
+                    ))}
                   </div>
-                  {limits.map((item) => (
-                    <BudgetItemCard
-                      key={item.id}
-                      item={item}
-                      onEdit={() => setEditingItem(item)}
-                      onDelete={() => handleDeleteItem(item)}
-                    />
-                  ))}
-                </div>
-              )}
+                )}
 
               {/* Payments Section */}
-              {(typeFilter === "all" || typeFilter === "payment") && payments.length > 0 && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 px-1">
-                    <Receipt className="h-4 w-4 text-muted-foreground" />
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                      Payments
-                    </h3>
-                    <span className="text-xs text-muted-foreground">
-                      ({payments.length})
-                    </span>
+              {(typeFilter === "all" || typeFilter === "payment") &&
+                payments.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 px-1">
+                      <Receipt className="h-4 w-4 text-muted-foreground" />
+                      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                        Payments
+                      </h3>
+                      <span className="text-xs text-muted-foreground">
+                        ({payments.length})
+                      </span>
+                    </div>
+                    {payments.map((item) => (
+                      <BudgetItemCard
+                        key={item.id}
+                        item={item}
+                        onEdit={() => setEditingItem(item)}
+                        onDelete={() => handleDeleteItem(item)}
+                        onMarkAsPaid={() => setPayingItem(item)}
+                      />
+                    ))}
                   </div>
-                  {payments.map((item) => (
-                    <BudgetItemCard
-                      key={item.id}
-                      item={item}
-                      onEdit={() => setEditingItem(item)}
-                      onDelete={() => handleDeleteItem(item)}
-                      onMarkAsPaid={() => setPayingItem(item)}
-                    />
-                  ))}
-                </div>
-              )}
+                )}
             </>
           )}
         </div>
@@ -295,7 +306,7 @@ export function BudgetsClient() {
 
       {/* Add Item Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-106.25">
           <DialogHeader>
             <DialogTitle>Add Budget Item</DialogTitle>
           </DialogHeader>
@@ -313,7 +324,7 @@ export function BudgetsClient() {
         open={!!editingItem}
         onOpenChange={(open) => !open && setEditingItem(null)}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-106.25">
           <DialogHeader>
             <DialogTitle>Edit Budget Item</DialogTitle>
           </DialogHeader>
@@ -349,4 +360,3 @@ export function BudgetsClient() {
     </div>
   );
 }
-

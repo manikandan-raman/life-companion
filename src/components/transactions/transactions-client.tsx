@@ -38,7 +38,9 @@ export function TransactionsClient() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [transactionType, setTransactionType] = useState<TransactionType | "all">("all");
+  const [transactionType, setTransactionType] = useState<
+    TransactionType | "all"
+  >("all");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -91,7 +93,7 @@ export function TransactionsClient() {
       });
       return acc;
     },
-    { income: 0, expense: 0 }
+    { income: 0, expense: 0 },
   );
 
   const hasActiveFilters = transactionType !== "all" || debouncedSearch;
@@ -202,7 +204,7 @@ export function TransactionsClient() {
               setTransactionType(value as TransactionType | "all")
             }
           >
-            <SelectTrigger className="w-full sm:w-[130px]">
+            <SelectTrigger className="w-full sm:w-32.5">
               <SelectValue placeholder="All Types" />
             </SelectTrigger>
             <SelectContent>
@@ -219,7 +221,7 @@ export function TransactionsClient() {
             value={sortOrder}
             onValueChange={(value) => setSortOrder(value as "asc" | "desc")}
           >
-            <SelectTrigger className="w-full sm:w-[130px]">
+            <SelectTrigger className="w-full sm:w-32.5">
               <SelectValue placeholder="Sort Order" />
             </SelectTrigger>
             <SelectContent>
@@ -309,11 +311,13 @@ export function TransactionsClient() {
                     "text-sm font-semibold",
                     summary.income - summary.expense >= 0
                       ? "text-income"
-                      : "text-destructive"
+                      : "text-destructive",
                   )}
                 >
                   {summary.income - summary.expense >= 0 ? "" : "-"}₹
-                  {Math.abs(summary.income - summary.expense).toLocaleString("en-IN")}
+                  {Math.abs(summary.income - summary.expense).toLocaleString(
+                    "en-IN",
+                  )}
                 </p>
               </div>
             </div>

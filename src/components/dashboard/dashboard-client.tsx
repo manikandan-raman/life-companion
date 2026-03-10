@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSummary } from "@/hooks/use-transactions";
 import { useSpendingBreakdown } from "@/hooks/use-spending-breakdown";
-import { useNetWorth } from "@/hooks/use-networth";
 import type { TransactionType } from "@/types";
 
 export function DashboardClient() {
@@ -33,8 +32,6 @@ export function DashboardClient() {
       startDate,
       endDate,
     });
-
-  const { data: netWorth, isLoading: isLoadingNetWorth } = useNetWorth();
 
   const formatAmount = (value: number) => {
     return new Intl.NumberFormat("en-IN", {
@@ -76,9 +73,9 @@ export function DashboardClient() {
           {isLoading ? (
             <Skeleton className="h-48 rounded-3xl" />
           ) : (
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-card via-card to-muted/20 border border-border/50 p-6 shadow-xl shadow-black/5">
+            <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-card via-card to-muted/20 border border-border/50 p-6 shadow-xl shadow-black/5">
               {/* Subtle gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
 
               <div className="relative flex items-center justify-between gap-6">
                 {/* Left side - Income & Spent */}
@@ -202,10 +199,7 @@ export function DashboardClient() {
         </div>
 
         {/* Spending Breakdown */}
-        <div
-          className="animate-card-enter"
-          style={{ animationDelay: "100ms" }}
-        >
+        <div className="animate-card-enter" style={{ animationDelay: "100ms" }}>
           <SpendingBreakdown
             categories={spendingBreakdown?.categories || []}
             totalSpending={spendingBreakdown?.totalSpending || 0}
