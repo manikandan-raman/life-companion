@@ -62,7 +62,7 @@ export function Header({ title, action, leftAction, variant = "default" }: Heade
   // Greeting variant - more personal header
   if (variant === "greeting") {
     return (
-      <header className="sticky top-0 z-40 px-4 py-4 md:px-6 bg-background/80 backdrop-blur-xl border-b border-border/30">
+      <header className="sticky top-0 z-40 px-4 pb-4 md:px-6 bg-background/80 backdrop-blur-xl border-b border-border/30" style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 1rem)" }}>
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           {/* Greeting */}
           <div className="space-y-0.5">
@@ -151,7 +151,7 @@ export function Header({ title, action, leftAction, variant = "default" }: Heade
 
   // Default variant
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 md:px-6 bg-background/80 backdrop-blur-xl border-b border-border/50">
+    <header className="sticky top-0 z-40 flex items-center justify-between px-4 pb-3 md:px-6 bg-background/80 backdrop-blur-xl border-b border-border/50" style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 0.75rem)" }}>
       {/* Left side - back action + title */}
       <div className="flex items-center gap-2">
         {leftAction}
