@@ -116,8 +116,16 @@ export function BudgetsClient() {
 
   const summary = budgetData?.summary;
   const items = budgetData?.data?.items || [];
-  const limits = budgetData?.data?.limits || [];
-  const payments = budgetData?.data?.payments || [];
+
+  const limits = [...(budgetData?.data?.limits || [])].sort((a, b) => {
+    const aComplete = (a.actualSpent || 0) >= parseFloat(String(a.amount)) ? 1 : 0;
+    const bComplete = (b.actualSpent || 0) >= parseFloat(String(b.amount)) ? 1 : 0;
+    return aComplete - bComplete;
+  });
+
+  const payments = [...(budgetData?.data?.payments || [])].sort((a, b) => {
+    return (a.status === "paid" ? 1 : 0) - (b.status === "paid" ? 1 : 0);
+  });
 
   return (
     <div className="min-h-screen">
