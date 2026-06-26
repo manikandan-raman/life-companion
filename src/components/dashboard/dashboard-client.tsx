@@ -204,6 +204,9 @@ export function DashboardClient() {
             categories={spendingBreakdown?.categories || []}
             totalSpending={spendingBreakdown?.totalSpending || 0}
             isLoading={isLoadingBreakdown}
+            detailHref={`/spending?month=${
+              currentDate.getMonth() + 1
+            }&year=${currentDate.getFullYear()}`}
           />
         </div>
 

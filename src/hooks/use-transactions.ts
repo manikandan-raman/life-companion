@@ -185,12 +185,14 @@ interface UseGroupedTransactionsOptions {
   accountId?: string;
   search?: string;
   sortOrder?: "asc" | "desc";
+  enabled?: boolean;
 }
 
 export function useGroupedTransactions(options: UseGroupedTransactionsOptions) {
-  const { startDate, endDate, categoryId, subCategoryId, type, accountId, search, sortOrder = "desc" } = options;
+  const { startDate, endDate, categoryId, subCategoryId, type, accountId, search, sortOrder = "desc", enabled = true } = options;
 
   return useQuery({
+    enabled,
     queryKey: [
       "transactions",
       "grouped",

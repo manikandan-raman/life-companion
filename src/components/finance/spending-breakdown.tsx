@@ -1,50 +1,22 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { DonutChart } from "@tremor/react";
 import { ChevronRight, ArrowLeft, TrendingDown, Layers } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { ENTITY_COLORS } from "@/lib/colors";
+import { ENTITY_COLORS, CHART_COLORS, CHART_COLORS_HEX } from "@/lib/colors";
 import { cn } from "@/lib/utils";
-import type {
-  CategorySpending,
-  SubCategorySpending,
-} from "@/hooks/use-spending-breakdown";
+import type { CategorySpending } from "@/hooks/use-spending-breakdown";
 
 interface SpendingBreakdownProps {
   categories: CategorySpending[];
   totalSpending: number;
   isLoading?: boolean;
+  detailHref?: string;
 }
-
-// Chart colors palette
-const CHART_COLORS = [
-  "blue",
-  "emerald",
-  "violet",
-  "amber",
-  "pink",
-  "cyan",
-  "indigo",
-  "rose",
-  "teal",
-  "orange",
-];
-
-const CHART_COLORS_HEX = [
-  ENTITY_COLORS.blue.hex,
-  ENTITY_COLORS.emerald.hex,
-  ENTITY_COLORS.violet.hex,
-  ENTITY_COLORS.amber.hex,
-  ENTITY_COLORS.pink.hex,
-  ENTITY_COLORS.cyan.hex,
-  ENTITY_COLORS.indigo.hex,
-  "#f43f5e", // rose
-  "#14b8a6", // teal
-  "#f97316", // orange
-];
 
 // Custom tooltip
 interface CustomTooltipProps {
@@ -147,6 +119,7 @@ export function SpendingBreakdown({
   categories,
   totalSpending,
   isLoading = false,
+  detailHref,
 }: SpendingBreakdownProps) {
   const [selectedCategory, setSelectedCategory] =
     useState<CategorySpending | null>(null);
@@ -274,10 +247,23 @@ export function SpendingBreakdown({
               </>
             )}
           </div>
-          {selectedCategory && (
+          {selectedCategory ? (
             <span className="text-sm font-medium text-foreground">
               {selectedCategory.name}
             </span>
+          ) : (
+            detailHref && (
+              <Link href={detailHref}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-foreground h-7 px-2 text-xs"
+                >
+                  View details
+                  <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
+                </Button>
+              </Link>
+            )
           )}
         </div>
       </div>

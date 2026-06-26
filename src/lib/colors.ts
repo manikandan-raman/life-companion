@@ -99,6 +99,34 @@ export const LIABILITY_COLOR_OPTIONS = [
   { value: ENTITY_COLORS.violet.hex, label: ENTITY_COLORS.violet.label },
 ] as const;
 
+// Chart color palette (Tremor color names) - used by spending charts/donuts
+export const CHART_COLORS = [
+  "blue",
+  "emerald",
+  "violet",
+  "amber",
+  "pink",
+  "cyan",
+  "indigo",
+  "rose",
+  "teal",
+  "orange",
+] as const;
+
+// Matching hex values for the chart palette (legend dots, tooltips, inline styles)
+export const CHART_COLORS_HEX = [
+  ENTITY_COLORS.blue.hex,
+  ENTITY_COLORS.emerald.hex,
+  ENTITY_COLORS.violet.hex,
+  ENTITY_COLORS.amber.hex,
+  ENTITY_COLORS.pink.hex,
+  ENTITY_COLORS.cyan.hex,
+  ENTITY_COLORS.indigo.hex,
+  "#f43f5e", // rose
+  "#14b8a6", // teal
+  "#f97316", // orange
+] as const;
+
 // Type for color option
 export type ColorOption = {
   value: string;
