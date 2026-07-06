@@ -13,6 +13,8 @@ export const SEED_CATEGORIES = [
       { id: "dairy", name: "Milk & Dairy Products", icon: "Milk" },
       { id: "meat_fish", name: "Meat & Fish", icon: "Fish" },
       { id: "bakery", name: "Bread & Bakery", icon: "Cake" },
+      { id: "tender_coconut", name: "Tender Coconut", icon: "TreePalm" },
+      { id: "snacks", name: "Snacks", icon: "Cookie" },
     ],
   },
   {
@@ -138,6 +140,7 @@ export const SEED_CATEGORIES = [
       { id: "electronics", name: "Electronics & Gadgets", icon: "Laptop" },
       { id: "home_decor", name: "Home Décor", icon: "Sofa" },
       { id: "gifts", name: "Gifts", icon: "Gift" },
+      { id: "shopping_others", name: "Others", icon: "Package" },
     ],
   },
   {
